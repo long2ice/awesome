@@ -30,7 +30,7 @@ type Topic struct {
 	PlatformID int `json:"platform_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TopicQuery when eager-loading is set.
-	Edges TopicEdges `json:"edges"`
+	Edges TopicEdges `json:"-"`
 }
 
 // TopicEdges holds the relations/edges for other nodes in the graph.

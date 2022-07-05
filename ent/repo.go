@@ -39,7 +39,7 @@ type Repo struct {
 	TopicID int `json:"topic_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RepoQuery when eager-loading is set.
-	Edges RepoEdges `json:"edges"`
+	Edges RepoEdges `json:"-"`
 }
 
 // RepoEdges holds the relations/edges for other nodes in the graph.

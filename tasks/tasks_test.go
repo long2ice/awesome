@@ -2,9 +2,10 @@ package tasks
 
 import (
 	"context"
+	"testing"
+
 	"github.com/hibiken/asynq"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGetRepos(t *testing.T) {

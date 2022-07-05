@@ -21,7 +21,7 @@ type Platform struct {
 	Icon string `json:"icon,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PlatformQuery when eager-loading is set.
-	Edges PlatformEdges `json:"edges"`
+	Edges PlatformEdges `json:"-"`
 }
 
 // PlatformEdges holds the relations/edges for other nodes in the graph.

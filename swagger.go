@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/long2ice/fibers/swagger"
 )

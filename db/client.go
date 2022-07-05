@@ -2,13 +2,14 @@ package db
 
 import (
 	"context"
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/ent"
 	"github.com/long2ice/awesome/ent/migrate"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 var Client *ent.Client

@@ -37,5 +37,6 @@ func (Topic) Edges() []ent.Edge {
 func (Topic) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "topic"},
+		edge.Annotation{StructTag: `json:"-"`},
 	}
 }

@@ -41,5 +41,6 @@ func (Repo) Edges() []ent.Edge {
 func (Repo) Annotations() []schema.Annotation {
 	return []schema.Annotation{
 		entsql.Annotation{Table: "repo"},
+		edge.Annotation{StructTag: `json:"-"`},
 	}
 }

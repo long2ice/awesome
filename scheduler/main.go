@@ -1,14 +1,16 @@
 package main
 
 import (
+	"time"
+
 	"github.com/hibiken/asynq"
+	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/tasks"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 func main() {
-	loc, err := time.LoadLocation("Asia/Shanghai")
+	loc, err := time.LoadLocation(conf.ServerConfig.Timezone)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -18,11 +20,21 @@ func main() {
 			Location: loc,
 		},
 	)
-	entryID, err := scheduler.Register("0 0 * * *", asynq.NewTask(tasks.TypeGetTopicsPeriodic, nil))
+	entryID, err := scheduler.Register("0 0 * * *", asynq.NewTask(tasks.TypeGetTopicPeriodic, nil))
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeGetTopicsPeriodic)
+	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeGetTopicPeriodic)
+	entryID, err = scheduler.Register("0 2 * * *", asynq.NewTask(tasks.TypeSyncTopicPeriodic, nil))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeSyncTopicPeriodic)
+	entryID, err = scheduler.Register("0 4 * * *", asynq.NewTask(tasks.TypeSyncRepoPeriodic, nil))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeSyncRepoPeriodic)
 	if err = scheduler.Run(); err != nil {
 		log.Fatal(err)
 	}

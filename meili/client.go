@@ -13,9 +13,17 @@ var (
 
 func init() {
 	Client = meilisearch.NewClient(meilisearch.ClientConfig{
-		Host:   conf.MeiliConfig.Server,
-		APIKey: conf.MeiliConfig.MasterKey,
+		Host:   conf.MeiliSearchConfig.Server,
+		APIKey: conf.MeiliSearchConfig.MasterKey,
 	})
 	TopicIndex = Client.Index("awesome-topic")
 	RepoIndex = Client.Index("awesome-repo")
+}
+func GetIds(searchRes *meilisearch.SearchResponse) []int {
+	var ids []int
+	for _, item := range searchRes.Hits {
+		id := item.(map[string]interface{})["id"].(float64)
+		ids = append(ids, int(id))
+	}
+	return ids
 }

@@ -1,15 +1,17 @@
 server:
   listen: 0.0.0.0:8000
-  logTimezone: Asia/Shanghai
+  timezone: Asia/Shanghai
   logTimeFormat: '2006-01-02 15:04:05.000000'
+
 database:
   dsn: root:123456@tcp(127.0.0.1:3306)/awesome?parseTime=true
+
 meilisearch:
   server: http://192.168.123.205:7700
-  master_key:
+  masterKey:
+  batchSize: 10000
+
 redis:
   addr: 127.0.0.1:6379
   password:
   db: 3
-github:
-  token: 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

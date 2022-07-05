@@ -22,8 +22,8 @@ func initRouters(app *fibers.App) {
 	)
 	topic := app.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
-	project := topic.Group("/:topic_id/repo")
-	project.Get("", repoSearch)
+	repo := app.Group("/repo", fibers.Tags("Repo"))
+	repo.Get("", repoSearch)
 	h := asynqmon.New(asynqmon.Options{
 		RootPath:     "/asynqmon",
 		RedisConnOpt: tasks.Option,
@@ -35,7 +35,7 @@ func initMiddlewares(app *fibers.App) {
 	app.Use(
 		logger.New(logger.Config{
 			TimeFormat: conf.ServerConfig.LogTimeFormat,
-			TimeZone:   conf.ServerConfig.LogTimezone,
+			TimeZone:   conf.ServerConfig.Timezone,
 		}),
 		recover.New(),
 		cors.New(),

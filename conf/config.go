@@ -7,7 +7,7 @@ import (
 
 type Server struct {
 	Listen        string `yaml:"listen"`
-	LogTimezone   string `yaml:"logTimezone"`
+	Timezone      string `yaml:"timezone"`
 	LogTimeFormat string `yaml:"logTimeFormat"`
 }
 type Database struct {
@@ -20,17 +20,14 @@ type Redis struct {
 }
 type MeiliSearch struct {
 	Server    string `yaml:"server"`
-	MasterKey string `yaml:"master_key"`
-}
-type Github struct {
-	Token string `yaml:"token"`
+	MasterKey string `yaml:"masterKey"`
+	BatchSize int    `yaml:"batchSize"`
 }
 type Config struct {
-	Server   *Server
-	Database *Database
-	Meili    *MeiliSearch
-	Redis    *Redis
-	Github   *Github
+	Server      *Server      `yaml:"server"`
+	Database    *Database    `yaml:"database"`
+	MeiliSearch *MeiliSearch `yaml:"meilisearch"`
+	Redis       *Redis       `yaml:"redis"`
 }
 
 func init() {
@@ -39,24 +36,22 @@ func init() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatalf("Fatal error config file: %v \n", err)
+		log.Fatalf("fatal error config file: %v \n", err)
 	}
 	var c Config
 	err = viper.Unmarshal(&c)
 	if err != nil {
-		log.Fatalf("Unable to decode into struct, %v", err)
+		log.Fatalf("unable to decode into struct, %v", err)
 	}
 	ServerConfig = c.Server
 	DatabaseConfig = c.Database
-	MeiliConfig = c.Meili
+	MeiliSearchConfig = c.MeiliSearch
 	RedisConfig = c.Redis
-	GithubConfig = c.Github
 }
 
 var (
-	ServerConfig   *Server
-	DatabaseConfig *Database
-	MeiliConfig    *MeiliSearch
-	RedisConfig    *Redis
-	GithubConfig   *Github
+	ServerConfig      *Server
+	DatabaseConfig    *Database
+	MeiliSearchConfig *MeiliSearch
+	RedisConfig       *Redis
 )
