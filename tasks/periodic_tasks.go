@@ -118,6 +118,7 @@ func SyncTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
 			"name":        tp.Name,
 			"sub_name":    tp.SubName,
 			"description": tp.Description,
+			"platform_id": tp.PlatformID,
 		})
 	}
 	if len(documents) > 0 {
@@ -148,6 +149,7 @@ func SyncRepoPeriodic(ctx context.Context, _ *asynq.Task) error {
 				"name":        r.Name,
 				"description": r.Description,
 				"sub_topic":   r.SubTopic,
+				"topic_id":    r.TopicID,
 			})
 		}
 		if len(documents) > 0 {

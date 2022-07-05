@@ -18,12 +18,20 @@ import (
 func initRouters(app *fibers.App) {
 	var (
 		topicSearch = router.New(&api.TopicSearch{}, router.Summary("Search topic"))
-		repoSearch  = router.New(&api.Repo{})
+		repoSearch  = router.New(&api.Repo{}, router.Summary("Search repo"))
+		platform    = router.New(
+			&api.Platform{},
+			router.Summary("Platform"),
+			router.Tags("Platform"),
+		)
 	)
 	topic := app.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
+
 	repo := app.Group("/repo", fibers.Tags("Repo"))
 	repo.Get("", repoSearch)
+
+	app.Get("/platform", platform)
 	h := asynqmon.New(asynqmon.Options{
 		RootPath:     "/asynqmon",
 		RedisConnOpt: tasks.Option,

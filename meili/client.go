@@ -3,6 +3,7 @@ package meili
 import (
 	"github.com/long2ice/awesome/conf"
 	"github.com/meilisearch/meilisearch-go"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -17,7 +18,15 @@ func init() {
 		APIKey: conf.MeiliSearchConfig.MasterKey,
 	})
 	TopicIndex = Client.Index("awesome-topic")
+	_, err := TopicIndex.UpdateFilterableAttributes(&[]string{"platform_id"})
+	if err != nil {
+		log.Panic(err)
+	}
 	RepoIndex = Client.Index("awesome-repo")
+	_, err = RepoIndex.UpdateFilterableAttributes(&[]string{"topic_id"})
+	if err != nil {
+		log.Panic(err)
+	}
 }
 func GetIds(searchRes *meilisearch.SearchResponse) []int {
 	var ids []int
