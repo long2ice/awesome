@@ -19,4 +19,4 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /build/app /
 COPY --from=builder /build/worker /
 COPY --from=builder /build/scheduler /
-ENTRYPOINT ["/app"]
+CMD ["/app"]
