@@ -6,22 +6,31 @@ import (
 )
 
 type Server struct {
-	Host          string `yaml:"host"`
-	Port          string `yaml:"port"`
+	Listen        string `yaml:"listen"`
 	LogTimezone   string `yaml:"logTimezone"`
 	LogTimeFormat string `yaml:"logTimeFormat"`
 }
 type Database struct {
 	Dsn string `yaml:"dsn"`
 }
+type Redis struct {
+	Addr     string `yaml:"addr"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+}
 type MeiliSearch struct {
 	Server    string `yaml:"server"`
 	MasterKey string `yaml:"master_key"`
+}
+type Github struct {
+	Token string `yaml:"token"`
 }
 type Config struct {
 	Server   *Server
 	Database *Database
 	Meili    *MeiliSearch
+	Redis    *Redis
+	Github   *Github
 }
 
 func init() {
@@ -40,10 +49,14 @@ func init() {
 	ServerConfig = c.Server
 	DatabaseConfig = c.Database
 	MeiliConfig = c.Meili
+	RedisConfig = c.Redis
+	GithubConfig = c.Github
 }
 
 var (
 	ServerConfig   *Server
 	DatabaseConfig *Database
 	MeiliConfig    *MeiliSearch
+	RedisConfig    *Redis
+	GithubConfig   *Github
 )

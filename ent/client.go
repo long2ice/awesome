@@ -9,9 +9,9 @@ import (
 
 	"github.com/long2ice/awesome/ent/migrate"
 
-	"github.com/long2ice/awesome/ent/project"
+	"github.com/long2ice/awesome/ent/platform"
+	"github.com/long2ice/awesome/ent/repo"
 	"github.com/long2ice/awesome/ent/topic"
-	"github.com/long2ice/awesome/ent/topiccategory"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -23,12 +23,12 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Project is the client for interacting with the Project builders.
-	Project *ProjectClient
+	// Platform is the client for interacting with the Platform builders.
+	Platform *PlatformClient
+	// Repo is the client for interacting with the Repo builders.
+	Repo *RepoClient
 	// Topic is the client for interacting with the Topic builders.
 	Topic *TopicClient
-	// TopicCategory is the client for interacting with the TopicCategory builders.
-	TopicCategory *TopicCategoryClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -42,9 +42,9 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Project = NewProjectClient(c.config)
+	c.Platform = NewPlatformClient(c.config)
+	c.Repo = NewRepoClient(c.config)
 	c.Topic = NewTopicClient(c.config)
-	c.TopicCategory = NewTopicCategoryClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -76,11 +76,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		Project:       NewProjectClient(cfg),
-		Topic:         NewTopicClient(cfg),
-		TopicCategory: NewTopicCategoryClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Platform: NewPlatformClient(cfg),
+		Repo:     NewRepoClient(cfg),
+		Topic:    NewTopicClient(cfg),
 	}, nil
 }
 
@@ -98,18 +98,18 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		Project:       NewProjectClient(cfg),
-		Topic:         NewTopicClient(cfg),
-		TopicCategory: NewTopicCategoryClient(cfg),
+		ctx:      ctx,
+		config:   cfg,
+		Platform: NewPlatformClient(cfg),
+		Repo:     NewRepoClient(cfg),
+		Topic:    NewTopicClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Project.
+//		Platform.
 //		Query().
 //		Count(ctx)
 //
@@ -132,89 +132,89 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Project.Use(hooks...)
+	c.Platform.Use(hooks...)
+	c.Repo.Use(hooks...)
 	c.Topic.Use(hooks...)
-	c.TopicCategory.Use(hooks...)
 }
 
-// ProjectClient is a client for the Project schema.
-type ProjectClient struct {
+// PlatformClient is a client for the Platform schema.
+type PlatformClient struct {
 	config
 }
 
-// NewProjectClient returns a client for the Project from the given config.
-func NewProjectClient(c config) *ProjectClient {
-	return &ProjectClient{config: c}
+// NewPlatformClient returns a client for the Platform from the given config.
+func NewPlatformClient(c config) *PlatformClient {
+	return &PlatformClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `project.Hooks(f(g(h())))`.
-func (c *ProjectClient) Use(hooks ...Hook) {
-	c.hooks.Project = append(c.hooks.Project, hooks...)
+// A call to `Use(f, g, h)` equals to `platform.Hooks(f(g(h())))`.
+func (c *PlatformClient) Use(hooks ...Hook) {
+	c.hooks.Platform = append(c.hooks.Platform, hooks...)
 }
 
-// Create returns a create builder for Project.
-func (c *ProjectClient) Create() *ProjectCreate {
-	mutation := newProjectMutation(c.config, OpCreate)
-	return &ProjectCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a create builder for Platform.
+func (c *PlatformClient) Create() *PlatformCreate {
+	mutation := newPlatformMutation(c.config, OpCreate)
+	return &PlatformCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Project entities.
-func (c *ProjectClient) CreateBulk(builders ...*ProjectCreate) *ProjectCreateBulk {
-	return &ProjectCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Platform entities.
+func (c *PlatformClient) CreateBulk(builders ...*PlatformCreate) *PlatformCreateBulk {
+	return &PlatformCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Project.
-func (c *ProjectClient) Update() *ProjectUpdate {
-	mutation := newProjectMutation(c.config, OpUpdate)
-	return &ProjectUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Platform.
+func (c *PlatformClient) Update() *PlatformUpdate {
+	mutation := newPlatformMutation(c.config, OpUpdate)
+	return &PlatformUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ProjectClient) UpdateOne(pr *Project) *ProjectUpdateOne {
-	mutation := newProjectMutation(c.config, OpUpdateOne, withProject(pr))
-	return &ProjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *PlatformClient) UpdateOne(pl *Platform) *PlatformUpdateOne {
+	mutation := newPlatformMutation(c.config, OpUpdateOne, withPlatform(pl))
+	return &PlatformUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ProjectClient) UpdateOneID(id int) *ProjectUpdateOne {
-	mutation := newProjectMutation(c.config, OpUpdateOne, withProjectID(id))
-	return &ProjectUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *PlatformClient) UpdateOneID(id int) *PlatformUpdateOne {
+	mutation := newPlatformMutation(c.config, OpUpdateOne, withPlatformID(id))
+	return &PlatformUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Project.
-func (c *ProjectClient) Delete() *ProjectDelete {
-	mutation := newProjectMutation(c.config, OpDelete)
-	return &ProjectDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Platform.
+func (c *PlatformClient) Delete() *PlatformDelete {
+	mutation := newPlatformMutation(c.config, OpDelete)
+	return &PlatformDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
-func (c *ProjectClient) DeleteOne(pr *Project) *ProjectDeleteOne {
-	return c.DeleteOneID(pr.ID)
+func (c *PlatformClient) DeleteOne(pl *Platform) *PlatformDeleteOne {
+	return c.DeleteOneID(pl.ID)
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *ProjectClient) DeleteOneID(id int) *ProjectDeleteOne {
-	builder := c.Delete().Where(project.ID(id))
+func (c *PlatformClient) DeleteOneID(id int) *PlatformDeleteOne {
+	builder := c.Delete().Where(platform.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &ProjectDeleteOne{builder}
+	return &PlatformDeleteOne{builder}
 }
 
-// Query returns a query builder for Project.
-func (c *ProjectClient) Query() *ProjectQuery {
-	return &ProjectQuery{
+// Query returns a query builder for Platform.
+func (c *PlatformClient) Query() *PlatformQuery {
+	return &PlatformQuery{
 		config: c.config,
 	}
 }
 
-// Get returns a Project entity by its id.
-func (c *ProjectClient) Get(ctx context.Context, id int) (*Project, error) {
-	return c.Query().Where(project.ID(id)).Only(ctx)
+// Get returns a Platform entity by its id.
+func (c *PlatformClient) Get(ctx context.Context, id int) (*Platform, error) {
+	return c.Query().Where(platform.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ProjectClient) GetX(ctx context.Context, id int) *Project {
+func (c *PlatformClient) GetX(ctx context.Context, id int) *Platform {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -222,25 +222,131 @@ func (c *ProjectClient) GetX(ctx context.Context, id int) *Project {
 	return obj
 }
 
-// QueryTopic queries the topic edge of a Project.
-func (c *ProjectClient) QueryTopic(pr *Project) *TopicQuery {
+// QueryTopics queries the topics edge of a Platform.
+func (c *PlatformClient) QueryTopics(pl *Platform) *TopicQuery {
 	query := &TopicQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := pr.ID
+		id := pl.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(project.Table, project.FieldID, id),
+			sqlgraph.From(platform.Table, platform.FieldID, id),
 			sqlgraph.To(topic.Table, topic.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, project.TopicTable, project.TopicColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, platform.TopicsTable, platform.TopicsColumn),
 		)
-		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(pl.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *ProjectClient) Hooks() []Hook {
-	return c.hooks.Project
+func (c *PlatformClient) Hooks() []Hook {
+	return c.hooks.Platform
+}
+
+// RepoClient is a client for the Repo schema.
+type RepoClient struct {
+	config
+}
+
+// NewRepoClient returns a client for the Repo from the given config.
+func NewRepoClient(c config) *RepoClient {
+	return &RepoClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `repo.Hooks(f(g(h())))`.
+func (c *RepoClient) Use(hooks ...Hook) {
+	c.hooks.Repo = append(c.hooks.Repo, hooks...)
+}
+
+// Create returns a create builder for Repo.
+func (c *RepoClient) Create() *RepoCreate {
+	mutation := newRepoMutation(c.config, OpCreate)
+	return &RepoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Repo entities.
+func (c *RepoClient) CreateBulk(builders ...*RepoCreate) *RepoCreateBulk {
+	return &RepoCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Repo.
+func (c *RepoClient) Update() *RepoUpdate {
+	mutation := newRepoMutation(c.config, OpUpdate)
+	return &RepoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *RepoClient) UpdateOne(r *Repo) *RepoUpdateOne {
+	mutation := newRepoMutation(c.config, OpUpdateOne, withRepo(r))
+	return &RepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *RepoClient) UpdateOneID(id int) *RepoUpdateOne {
+	mutation := newRepoMutation(c.config, OpUpdateOne, withRepoID(id))
+	return &RepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Repo.
+func (c *RepoClient) Delete() *RepoDelete {
+	mutation := newRepoMutation(c.config, OpDelete)
+	return &RepoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *RepoClient) DeleteOne(r *Repo) *RepoDeleteOne {
+	return c.DeleteOneID(r.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *RepoClient) DeleteOneID(id int) *RepoDeleteOne {
+	builder := c.Delete().Where(repo.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &RepoDeleteOne{builder}
+}
+
+// Query returns a query builder for Repo.
+func (c *RepoClient) Query() *RepoQuery {
+	return &RepoQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Repo entity by its id.
+func (c *RepoClient) Get(ctx context.Context, id int) (*Repo, error) {
+	return c.Query().Where(repo.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *RepoClient) GetX(ctx context.Context, id int) *Repo {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryTopics queries the topics edge of a Repo.
+func (c *RepoClient) QueryTopics(r *Repo) *TopicQuery {
+	query := &TopicQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repo.Table, repo.FieldID, id),
+			sqlgraph.To(topic.Table, topic.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, repo.TopicsTable, repo.TopicsColumn),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *RepoClient) Hooks() []Hook {
+	return c.hooks.Repo
 }
 
 // TopicClient is a client for the Topic schema.
@@ -328,15 +434,15 @@ func (c *TopicClient) GetX(ctx context.Context, id int) *Topic {
 	return obj
 }
 
-// QueryTopiccategory queries the topiccategory edge of a Topic.
-func (c *TopicClient) QueryTopiccategory(t *Topic) *TopicCategoryQuery {
-	query := &TopicCategoryQuery{config: c.config}
+// QueryPlatform queries the platform edge of a Topic.
+func (c *TopicClient) QueryPlatform(t *Topic) *PlatformQuery {
+	query := &PlatformQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(topic.Table, topic.FieldID, id),
-			sqlgraph.To(topiccategory.Table, topiccategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, topic.TopiccategoryTable, topic.TopiccategoryColumn),
+			sqlgraph.To(platform.Table, platform.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, topic.PlatformTable, topic.PlatformColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -344,15 +450,15 @@ func (c *TopicClient) QueryTopiccategory(t *Topic) *TopicCategoryQuery {
 	return query
 }
 
-// QueryProjects queries the projects edge of a Topic.
-func (c *TopicClient) QueryProjects(t *Topic) *ProjectQuery {
-	query := &ProjectQuery{config: c.config}
+// QueryRepos queries the repos edge of a Topic.
+func (c *TopicClient) QueryRepos(t *Topic) *RepoQuery {
+	query := &RepoQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := t.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(topic.Table, topic.FieldID, id),
-			sqlgraph.To(project.Table, project.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, topic.ProjectsTable, topic.ProjectsColumn),
+			sqlgraph.To(repo.Table, repo.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, topic.ReposTable, topic.ReposColumn),
 		)
 		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
 		return fromV, nil
@@ -363,110 +469,4 @@ func (c *TopicClient) QueryProjects(t *Topic) *ProjectQuery {
 // Hooks returns the client hooks.
 func (c *TopicClient) Hooks() []Hook {
 	return c.hooks.Topic
-}
-
-// TopicCategoryClient is a client for the TopicCategory schema.
-type TopicCategoryClient struct {
-	config
-}
-
-// NewTopicCategoryClient returns a client for the TopicCategory from the given config.
-func NewTopicCategoryClient(c config) *TopicCategoryClient {
-	return &TopicCategoryClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `topiccategory.Hooks(f(g(h())))`.
-func (c *TopicCategoryClient) Use(hooks ...Hook) {
-	c.hooks.TopicCategory = append(c.hooks.TopicCategory, hooks...)
-}
-
-// Create returns a create builder for TopicCategory.
-func (c *TopicCategoryClient) Create() *TopicCategoryCreate {
-	mutation := newTopicCategoryMutation(c.config, OpCreate)
-	return &TopicCategoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of TopicCategory entities.
-func (c *TopicCategoryClient) CreateBulk(builders ...*TopicCategoryCreate) *TopicCategoryCreateBulk {
-	return &TopicCategoryCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for TopicCategory.
-func (c *TopicCategoryClient) Update() *TopicCategoryUpdate {
-	mutation := newTopicCategoryMutation(c.config, OpUpdate)
-	return &TopicCategoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *TopicCategoryClient) UpdateOne(tc *TopicCategory) *TopicCategoryUpdateOne {
-	mutation := newTopicCategoryMutation(c.config, OpUpdateOne, withTopicCategory(tc))
-	return &TopicCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *TopicCategoryClient) UpdateOneID(id int) *TopicCategoryUpdateOne {
-	mutation := newTopicCategoryMutation(c.config, OpUpdateOne, withTopicCategoryID(id))
-	return &TopicCategoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for TopicCategory.
-func (c *TopicCategoryClient) Delete() *TopicCategoryDelete {
-	mutation := newTopicCategoryMutation(c.config, OpDelete)
-	return &TopicCategoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a delete builder for the given entity.
-func (c *TopicCategoryClient) DeleteOne(tc *TopicCategory) *TopicCategoryDeleteOne {
-	return c.DeleteOneID(tc.ID)
-}
-
-// DeleteOneID returns a delete builder for the given id.
-func (c *TopicCategoryClient) DeleteOneID(id int) *TopicCategoryDeleteOne {
-	builder := c.Delete().Where(topiccategory.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &TopicCategoryDeleteOne{builder}
-}
-
-// Query returns a query builder for TopicCategory.
-func (c *TopicCategoryClient) Query() *TopicCategoryQuery {
-	return &TopicCategoryQuery{
-		config: c.config,
-	}
-}
-
-// Get returns a TopicCategory entity by its id.
-func (c *TopicCategoryClient) Get(ctx context.Context, id int) (*TopicCategory, error) {
-	return c.Query().Where(topiccategory.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *TopicCategoryClient) GetX(ctx context.Context, id int) *TopicCategory {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryTopics queries the topics edge of a TopicCategory.
-func (c *TopicCategoryClient) QueryTopics(tc *TopicCategory) *TopicQuery {
-	query := &TopicQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
-		id := tc.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(topiccategory.Table, topiccategory.FieldID, id),
-			sqlgraph.To(topic.Table, topic.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, topiccategory.TopicsTable, topiccategory.TopicsColumn),
-		)
-		fromV = sqlgraph.Neighbors(tc.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *TopicCategoryClient) Hooks() []Hook {
-	return c.hooks.TopicCategory
 }

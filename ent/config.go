@@ -24,9 +24,9 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	Project       []ent.Hook
-	Topic         []ent.Hook
-	TopicCategory []ent.Hook
+	Platform []ent.Hook
+	Repo     []ent.Hook
+	Topic    []ent.Hook
 }
 
 // Options applies the options on the config object.

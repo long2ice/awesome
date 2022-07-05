@@ -10,10 +10,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/predicate"
-	"github.com/long2ice/awesome/ent/project"
+	"github.com/long2ice/awesome/ent/repo"
 	"github.com/long2ice/awesome/ent/topic"
-	"github.com/long2ice/awesome/ent/topiccategory"
 )
 
 // TopicUpdate is the builder for updating Topic entities.
@@ -35,42 +35,54 @@ func (tu *TopicUpdate) SetName(s string) *TopicUpdate {
 	return tu
 }
 
+// SetSubName sets the "sub_name" field.
+func (tu *TopicUpdate) SetSubName(s string) *TopicUpdate {
+	tu.mutation.SetSubName(s)
+	return tu
+}
+
 // SetDescription sets the "description" field.
 func (tu *TopicUpdate) SetDescription(s string) *TopicUpdate {
 	tu.mutation.SetDescription(s)
 	return tu
 }
 
-// SetTopicCategoryID sets the "topic_category_id" field.
-func (tu *TopicUpdate) SetTopicCategoryID(i int) *TopicUpdate {
-	tu.mutation.SetTopicCategoryID(i)
+// SetURL sets the "url" field.
+func (tu *TopicUpdate) SetURL(s string) *TopicUpdate {
+	tu.mutation.SetURL(s)
 	return tu
 }
 
-// SetTopiccategoryID sets the "topiccategory" edge to the TopicCategory entity by ID.
-func (tu *TopicUpdate) SetTopiccategoryID(id int) *TopicUpdate {
-	tu.mutation.SetTopiccategoryID(id)
+// SetGithubURL sets the "github_url" field.
+func (tu *TopicUpdate) SetGithubURL(s string) *TopicUpdate {
+	tu.mutation.SetGithubURL(s)
 	return tu
 }
 
-// SetTopiccategory sets the "topiccategory" edge to the TopicCategory entity.
-func (tu *TopicUpdate) SetTopiccategory(t *TopicCategory) *TopicUpdate {
-	return tu.SetTopiccategoryID(t.ID)
-}
-
-// AddProjectIDs adds the "projects" edge to the Project entity by IDs.
-func (tu *TopicUpdate) AddProjectIDs(ids ...int) *TopicUpdate {
-	tu.mutation.AddProjectIDs(ids...)
+// SetPlatformID sets the "platform_id" field.
+func (tu *TopicUpdate) SetPlatformID(i int) *TopicUpdate {
+	tu.mutation.SetPlatformID(i)
 	return tu
 }
 
-// AddProjects adds the "projects" edges to the Project entity.
-func (tu *TopicUpdate) AddProjects(p ...*Project) *TopicUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetPlatform sets the "platform" edge to the Platform entity.
+func (tu *TopicUpdate) SetPlatform(p *Platform) *TopicUpdate {
+	return tu.SetPlatformID(p.ID)
+}
+
+// AddRepoIDs adds the "repos" edge to the Repo entity by IDs.
+func (tu *TopicUpdate) AddRepoIDs(ids ...int) *TopicUpdate {
+	tu.mutation.AddRepoIDs(ids...)
+	return tu
+}
+
+// AddRepos adds the "repos" edges to the Repo entity.
+func (tu *TopicUpdate) AddRepos(r ...*Repo) *TopicUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
 	}
-	return tu.AddProjectIDs(ids...)
+	return tu.AddRepoIDs(ids...)
 }
 
 // Mutation returns the TopicMutation object of the builder.
@@ -78,31 +90,31 @@ func (tu *TopicUpdate) Mutation() *TopicMutation {
 	return tu.mutation
 }
 
-// ClearTopiccategory clears the "topiccategory" edge to the TopicCategory entity.
-func (tu *TopicUpdate) ClearTopiccategory() *TopicUpdate {
-	tu.mutation.ClearTopiccategory()
+// ClearPlatform clears the "platform" edge to the Platform entity.
+func (tu *TopicUpdate) ClearPlatform() *TopicUpdate {
+	tu.mutation.ClearPlatform()
 	return tu
 }
 
-// ClearProjects clears all "projects" edges to the Project entity.
-func (tu *TopicUpdate) ClearProjects() *TopicUpdate {
-	tu.mutation.ClearProjects()
+// ClearRepos clears all "repos" edges to the Repo entity.
+func (tu *TopicUpdate) ClearRepos() *TopicUpdate {
+	tu.mutation.ClearRepos()
 	return tu
 }
 
-// RemoveProjectIDs removes the "projects" edge to Project entities by IDs.
-func (tu *TopicUpdate) RemoveProjectIDs(ids ...int) *TopicUpdate {
-	tu.mutation.RemoveProjectIDs(ids...)
+// RemoveRepoIDs removes the "repos" edge to Repo entities by IDs.
+func (tu *TopicUpdate) RemoveRepoIDs(ids ...int) *TopicUpdate {
+	tu.mutation.RemoveRepoIDs(ids...)
 	return tu
 }
 
-// RemoveProjects removes "projects" edges to Project entities.
-func (tu *TopicUpdate) RemoveProjects(p ...*Project) *TopicUpdate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveRepos removes "repos" edges to Repo entities.
+func (tu *TopicUpdate) RemoveRepos(r ...*Repo) *TopicUpdate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
 	}
-	return tu.RemoveProjectIDs(ids...)
+	return tu.RemoveRepoIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -167,8 +179,8 @@ func (tu *TopicUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tu *TopicUpdate) check() error {
-	if _, ok := tu.mutation.TopiccategoryID(); tu.mutation.TopiccategoryCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Topic.topiccategory"`)
+	if _, ok := tu.mutation.PlatformID(); tu.mutation.PlatformCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Topic.platform"`)
 	}
 	return nil
 }
@@ -198,6 +210,13 @@ func (tu *TopicUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: topic.FieldName,
 		})
 	}
+	if value, ok := tu.mutation.SubName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldSubName,
+		})
+	}
 	if value, ok := tu.mutation.Description(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -205,33 +224,47 @@ func (tu *TopicUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: topic.FieldDescription,
 		})
 	}
-	if tu.mutation.TopiccategoryCleared() {
+	if value, ok := tu.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldURL,
+		})
+	}
+	if value, ok := tu.mutation.GithubURL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldGithubURL,
+		})
+	}
+	if tu.mutation.PlatformCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   topic.TopiccategoryTable,
-			Columns: []string{topic.TopiccategoryColumn},
+			Table:   topic.PlatformTable,
+			Columns: []string{topic.PlatformColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: topiccategory.FieldID,
+					Column: platform.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.TopiccategoryIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.PlatformIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   topic.TopiccategoryTable,
-			Columns: []string{topic.TopiccategoryColumn},
+			Table:   topic.PlatformTable,
+			Columns: []string{topic.PlatformColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: topiccategory.FieldID,
+					Column: platform.FieldID,
 				},
 			},
 		}
@@ -240,33 +273,33 @@ func (tu *TopicUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tu.mutation.ProjectsCleared() {
+	if tu.mutation.ReposCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.RemovedProjectsIDs(); len(nodes) > 0 && !tu.mutation.ProjectsCleared() {
+	if nodes := tu.mutation.RemovedReposIDs(); len(nodes) > 0 && !tu.mutation.ReposCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}
@@ -275,17 +308,17 @@ func (tu *TopicUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.ProjectsIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.ReposIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}
@@ -319,42 +352,54 @@ func (tuo *TopicUpdateOne) SetName(s string) *TopicUpdateOne {
 	return tuo
 }
 
+// SetSubName sets the "sub_name" field.
+func (tuo *TopicUpdateOne) SetSubName(s string) *TopicUpdateOne {
+	tuo.mutation.SetSubName(s)
+	return tuo
+}
+
 // SetDescription sets the "description" field.
 func (tuo *TopicUpdateOne) SetDescription(s string) *TopicUpdateOne {
 	tuo.mutation.SetDescription(s)
 	return tuo
 }
 
-// SetTopicCategoryID sets the "topic_category_id" field.
-func (tuo *TopicUpdateOne) SetTopicCategoryID(i int) *TopicUpdateOne {
-	tuo.mutation.SetTopicCategoryID(i)
+// SetURL sets the "url" field.
+func (tuo *TopicUpdateOne) SetURL(s string) *TopicUpdateOne {
+	tuo.mutation.SetURL(s)
 	return tuo
 }
 
-// SetTopiccategoryID sets the "topiccategory" edge to the TopicCategory entity by ID.
-func (tuo *TopicUpdateOne) SetTopiccategoryID(id int) *TopicUpdateOne {
-	tuo.mutation.SetTopiccategoryID(id)
+// SetGithubURL sets the "github_url" field.
+func (tuo *TopicUpdateOne) SetGithubURL(s string) *TopicUpdateOne {
+	tuo.mutation.SetGithubURL(s)
 	return tuo
 }
 
-// SetTopiccategory sets the "topiccategory" edge to the TopicCategory entity.
-func (tuo *TopicUpdateOne) SetTopiccategory(t *TopicCategory) *TopicUpdateOne {
-	return tuo.SetTopiccategoryID(t.ID)
-}
-
-// AddProjectIDs adds the "projects" edge to the Project entity by IDs.
-func (tuo *TopicUpdateOne) AddProjectIDs(ids ...int) *TopicUpdateOne {
-	tuo.mutation.AddProjectIDs(ids...)
+// SetPlatformID sets the "platform_id" field.
+func (tuo *TopicUpdateOne) SetPlatformID(i int) *TopicUpdateOne {
+	tuo.mutation.SetPlatformID(i)
 	return tuo
 }
 
-// AddProjects adds the "projects" edges to the Project entity.
-func (tuo *TopicUpdateOne) AddProjects(p ...*Project) *TopicUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetPlatform sets the "platform" edge to the Platform entity.
+func (tuo *TopicUpdateOne) SetPlatform(p *Platform) *TopicUpdateOne {
+	return tuo.SetPlatformID(p.ID)
+}
+
+// AddRepoIDs adds the "repos" edge to the Repo entity by IDs.
+func (tuo *TopicUpdateOne) AddRepoIDs(ids ...int) *TopicUpdateOne {
+	tuo.mutation.AddRepoIDs(ids...)
+	return tuo
+}
+
+// AddRepos adds the "repos" edges to the Repo entity.
+func (tuo *TopicUpdateOne) AddRepos(r ...*Repo) *TopicUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
 	}
-	return tuo.AddProjectIDs(ids...)
+	return tuo.AddRepoIDs(ids...)
 }
 
 // Mutation returns the TopicMutation object of the builder.
@@ -362,31 +407,31 @@ func (tuo *TopicUpdateOne) Mutation() *TopicMutation {
 	return tuo.mutation
 }
 
-// ClearTopiccategory clears the "topiccategory" edge to the TopicCategory entity.
-func (tuo *TopicUpdateOne) ClearTopiccategory() *TopicUpdateOne {
-	tuo.mutation.ClearTopiccategory()
+// ClearPlatform clears the "platform" edge to the Platform entity.
+func (tuo *TopicUpdateOne) ClearPlatform() *TopicUpdateOne {
+	tuo.mutation.ClearPlatform()
 	return tuo
 }
 
-// ClearProjects clears all "projects" edges to the Project entity.
-func (tuo *TopicUpdateOne) ClearProjects() *TopicUpdateOne {
-	tuo.mutation.ClearProjects()
+// ClearRepos clears all "repos" edges to the Repo entity.
+func (tuo *TopicUpdateOne) ClearRepos() *TopicUpdateOne {
+	tuo.mutation.ClearRepos()
 	return tuo
 }
 
-// RemoveProjectIDs removes the "projects" edge to Project entities by IDs.
-func (tuo *TopicUpdateOne) RemoveProjectIDs(ids ...int) *TopicUpdateOne {
-	tuo.mutation.RemoveProjectIDs(ids...)
+// RemoveRepoIDs removes the "repos" edge to Repo entities by IDs.
+func (tuo *TopicUpdateOne) RemoveRepoIDs(ids ...int) *TopicUpdateOne {
+	tuo.mutation.RemoveRepoIDs(ids...)
 	return tuo
 }
 
-// RemoveProjects removes "projects" edges to Project entities.
-func (tuo *TopicUpdateOne) RemoveProjects(p ...*Project) *TopicUpdateOne {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// RemoveRepos removes "repos" edges to Repo entities.
+func (tuo *TopicUpdateOne) RemoveRepos(r ...*Repo) *TopicUpdateOne {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
 	}
-	return tuo.RemoveProjectIDs(ids...)
+	return tuo.RemoveRepoIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -458,8 +503,8 @@ func (tuo *TopicUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tuo *TopicUpdateOne) check() error {
-	if _, ok := tuo.mutation.TopiccategoryID(); tuo.mutation.TopiccategoryCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "Topic.topiccategory"`)
+	if _, ok := tuo.mutation.PlatformID(); tuo.mutation.PlatformCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Topic.platform"`)
 	}
 	return nil
 }
@@ -506,6 +551,13 @@ func (tuo *TopicUpdateOne) sqlSave(ctx context.Context) (_node *Topic, err error
 			Column: topic.FieldName,
 		})
 	}
+	if value, ok := tuo.mutation.SubName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldSubName,
+		})
+	}
 	if value, ok := tuo.mutation.Description(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -513,33 +565,47 @@ func (tuo *TopicUpdateOne) sqlSave(ctx context.Context) (_node *Topic, err error
 			Column: topic.FieldDescription,
 		})
 	}
-	if tuo.mutation.TopiccategoryCleared() {
+	if value, ok := tuo.mutation.URL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldURL,
+		})
+	}
+	if value, ok := tuo.mutation.GithubURL(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldGithubURL,
+		})
+	}
+	if tuo.mutation.PlatformCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   topic.TopiccategoryTable,
-			Columns: []string{topic.TopiccategoryColumn},
+			Table:   topic.PlatformTable,
+			Columns: []string{topic.PlatformColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: topiccategory.FieldID,
+					Column: platform.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.TopiccategoryIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.PlatformIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   topic.TopiccategoryTable,
-			Columns: []string{topic.TopiccategoryColumn},
+			Table:   topic.PlatformTable,
+			Columns: []string{topic.PlatformColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: topiccategory.FieldID,
+					Column: platform.FieldID,
 				},
 			},
 		}
@@ -548,33 +614,33 @@ func (tuo *TopicUpdateOne) sqlSave(ctx context.Context) (_node *Topic, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if tuo.mutation.ProjectsCleared() {
+	if tuo.mutation.ReposCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.RemovedProjectsIDs(); len(nodes) > 0 && !tuo.mutation.ProjectsCleared() {
+	if nodes := tuo.mutation.RemovedReposIDs(); len(nodes) > 0 && !tuo.mutation.ReposCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}
@@ -583,17 +649,17 @@ func (tuo *TopicUpdateOne) sqlSave(ctx context.Context) (_node *Topic, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.ProjectsIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.ReposIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}

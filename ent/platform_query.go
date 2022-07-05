@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -11,60 +12,60 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/predicate"
-	"github.com/long2ice/awesome/ent/project"
 	"github.com/long2ice/awesome/ent/topic"
 )
 
-// ProjectQuery is the builder for querying Project entities.
-type ProjectQuery struct {
+// PlatformQuery is the builder for querying Platform entities.
+type PlatformQuery struct {
 	config
 	limit      *int
 	offset     *int
 	unique     *bool
 	order      []OrderFunc
 	fields     []string
-	predicates []predicate.Project
+	predicates []predicate.Platform
 	// eager-loading edges.
-	withTopic *TopicQuery
+	withTopics *TopicQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the ProjectQuery builder.
-func (pq *ProjectQuery) Where(ps ...predicate.Project) *ProjectQuery {
+// Where adds a new predicate for the PlatformQuery builder.
+func (pq *PlatformQuery) Where(ps ...predicate.Platform) *PlatformQuery {
 	pq.predicates = append(pq.predicates, ps...)
 	return pq
 }
 
 // Limit adds a limit step to the query.
-func (pq *ProjectQuery) Limit(limit int) *ProjectQuery {
+func (pq *PlatformQuery) Limit(limit int) *PlatformQuery {
 	pq.limit = &limit
 	return pq
 }
 
 // Offset adds an offset step to the query.
-func (pq *ProjectQuery) Offset(offset int) *ProjectQuery {
+func (pq *PlatformQuery) Offset(offset int) *PlatformQuery {
 	pq.offset = &offset
 	return pq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (pq *ProjectQuery) Unique(unique bool) *ProjectQuery {
+func (pq *PlatformQuery) Unique(unique bool) *PlatformQuery {
 	pq.unique = &unique
 	return pq
 }
 
 // Order adds an order step to the query.
-func (pq *ProjectQuery) Order(o ...OrderFunc) *ProjectQuery {
+func (pq *PlatformQuery) Order(o ...OrderFunc) *PlatformQuery {
 	pq.order = append(pq.order, o...)
 	return pq
 }
 
-// QueryTopic chains the current query on the "topic" edge.
-func (pq *ProjectQuery) QueryTopic() *TopicQuery {
+// QueryTopics chains the current query on the "topics" edge.
+func (pq *PlatformQuery) QueryTopics() *TopicQuery {
 	query := &TopicQuery{config: pq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -75,9 +76,9 @@ func (pq *ProjectQuery) QueryTopic() *TopicQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(project.Table, project.FieldID, selector),
+			sqlgraph.From(platform.Table, platform.FieldID, selector),
 			sqlgraph.To(topic.Table, topic.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, project.TopicTable, project.TopicColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, platform.TopicsTable, platform.TopicsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
 		return fromU, nil
@@ -85,21 +86,21 @@ func (pq *ProjectQuery) QueryTopic() *TopicQuery {
 	return query
 }
 
-// First returns the first Project entity from the query.
-// Returns a *NotFoundError when no Project was found.
-func (pq *ProjectQuery) First(ctx context.Context) (*Project, error) {
+// First returns the first Platform entity from the query.
+// Returns a *NotFoundError when no Platform was found.
+func (pq *PlatformQuery) First(ctx context.Context) (*Platform, error) {
 	nodes, err := pq.Limit(1).All(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{project.Label}
+		return nil, &NotFoundError{platform.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (pq *ProjectQuery) FirstX(ctx context.Context) *Project {
+func (pq *PlatformQuery) FirstX(ctx context.Context) *Platform {
 	node, err := pq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -107,22 +108,22 @@ func (pq *ProjectQuery) FirstX(ctx context.Context) *Project {
 	return node
 }
 
-// FirstID returns the first Project ID from the query.
-// Returns a *NotFoundError when no Project ID was found.
-func (pq *ProjectQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Platform ID from the query.
+// Returns a *NotFoundError when no Platform ID was found.
+func (pq *PlatformQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = pq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (pq *ProjectQuery) FirstIDX(ctx context.Context) int {
+func (pq *PlatformQuery) FirstIDX(ctx context.Context) int {
 	id, err := pq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -130,10 +131,10 @@ func (pq *ProjectQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Project entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Project entity is found.
-// Returns a *NotFoundError when no Project entities are found.
-func (pq *ProjectQuery) Only(ctx context.Context) (*Project, error) {
+// Only returns a single Platform entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Platform entity is found.
+// Returns a *NotFoundError when no Platform entities are found.
+func (pq *PlatformQuery) Only(ctx context.Context) (*Platform, error) {
 	nodes, err := pq.Limit(2).All(ctx)
 	if err != nil {
 		return nil, err
@@ -142,14 +143,14 @@ func (pq *ProjectQuery) Only(ctx context.Context) (*Project, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{project.Label}
+		return nil, &NotFoundError{platform.Label}
 	default:
-		return nil, &NotSingularError{project.Label}
+		return nil, &NotSingularError{platform.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (pq *ProjectQuery) OnlyX(ctx context.Context) *Project {
+func (pq *PlatformQuery) OnlyX(ctx context.Context) *Platform {
 	node, err := pq.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -157,10 +158,10 @@ func (pq *ProjectQuery) OnlyX(ctx context.Context) *Project {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Project ID in the query.
-// Returns a *NotSingularError when more than one Project ID is found.
+// OnlyID is like Only, but returns the only Platform ID in the query.
+// Returns a *NotSingularError when more than one Platform ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (pq *ProjectQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (pq *PlatformQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = pq.Limit(2).IDs(ctx); err != nil {
 		return
@@ -169,15 +170,15 @@ func (pq *ProjectQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = &NotSingularError{project.Label}
+		err = &NotSingularError{platform.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (pq *ProjectQuery) OnlyIDX(ctx context.Context) int {
+func (pq *PlatformQuery) OnlyIDX(ctx context.Context) int {
 	id, err := pq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -185,8 +186,8 @@ func (pq *ProjectQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Projects.
-func (pq *ProjectQuery) All(ctx context.Context) ([]*Project, error) {
+// All executes the query and returns a list of Platforms.
+func (pq *PlatformQuery) All(ctx context.Context) ([]*Platform, error) {
 	if err := pq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
@@ -194,7 +195,7 @@ func (pq *ProjectQuery) All(ctx context.Context) ([]*Project, error) {
 }
 
 // AllX is like All, but panics if an error occurs.
-func (pq *ProjectQuery) AllX(ctx context.Context) []*Project {
+func (pq *PlatformQuery) AllX(ctx context.Context) []*Platform {
 	nodes, err := pq.All(ctx)
 	if err != nil {
 		panic(err)
@@ -202,17 +203,17 @@ func (pq *ProjectQuery) AllX(ctx context.Context) []*Project {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Project IDs.
-func (pq *ProjectQuery) IDs(ctx context.Context) ([]int, error) {
+// IDs executes the query and returns a list of Platform IDs.
+func (pq *PlatformQuery) IDs(ctx context.Context) ([]int, error) {
 	var ids []int
-	if err := pq.Select(project.FieldID).Scan(ctx, &ids); err != nil {
+	if err := pq.Select(platform.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (pq *ProjectQuery) IDsX(ctx context.Context) []int {
+func (pq *PlatformQuery) IDsX(ctx context.Context) []int {
 	ids, err := pq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -221,7 +222,7 @@ func (pq *ProjectQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (pq *ProjectQuery) Count(ctx context.Context) (int, error) {
+func (pq *PlatformQuery) Count(ctx context.Context) (int, error) {
 	if err := pq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
@@ -229,7 +230,7 @@ func (pq *ProjectQuery) Count(ctx context.Context) (int, error) {
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (pq *ProjectQuery) CountX(ctx context.Context) int {
+func (pq *PlatformQuery) CountX(ctx context.Context) int {
 	count, err := pq.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -238,7 +239,7 @@ func (pq *ProjectQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (pq *ProjectQuery) Exist(ctx context.Context) (bool, error) {
+func (pq *PlatformQuery) Exist(ctx context.Context) (bool, error) {
 	if err := pq.prepareQuery(ctx); err != nil {
 		return false, err
 	}
@@ -246,7 +247,7 @@ func (pq *ProjectQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (pq *ProjectQuery) ExistX(ctx context.Context) bool {
+func (pq *PlatformQuery) ExistX(ctx context.Context) bool {
 	exist, err := pq.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -254,19 +255,19 @@ func (pq *ProjectQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the ProjectQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the PlatformQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (pq *ProjectQuery) Clone() *ProjectQuery {
+func (pq *PlatformQuery) Clone() *PlatformQuery {
 	if pq == nil {
 		return nil
 	}
-	return &ProjectQuery{
+	return &PlatformQuery{
 		config:     pq.config,
 		limit:      pq.limit,
 		offset:     pq.offset,
 		order:      append([]OrderFunc{}, pq.order...),
-		predicates: append([]predicate.Project{}, pq.predicates...),
-		withTopic:  pq.withTopic.Clone(),
+		predicates: append([]predicate.Platform{}, pq.predicates...),
+		withTopics: pq.withTopics.Clone(),
 		// clone intermediate query.
 		sql:    pq.sql.Clone(),
 		path:   pq.path,
@@ -274,14 +275,14 @@ func (pq *ProjectQuery) Clone() *ProjectQuery {
 	}
 }
 
-// WithTopic tells the query-builder to eager-load the nodes that are connected to
-// the "topic" edge. The optional arguments are used to configure the query builder of the edge.
-func (pq *ProjectQuery) WithTopic(opts ...func(*TopicQuery)) *ProjectQuery {
+// WithTopics tells the query-builder to eager-load the nodes that are connected to
+// the "topics" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *PlatformQuery) WithTopics(opts ...func(*TopicQuery)) *PlatformQuery {
 	query := &TopicQuery{config: pq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	pq.withTopic = query
+	pq.withTopics = query
 	return pq
 }
 
@@ -295,13 +296,13 @@ func (pq *ProjectQuery) WithTopic(opts ...func(*TopicQuery)) *ProjectQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Project.Query().
-//		GroupBy(project.FieldName).
+//	client.Platform.Query().
+//		GroupBy(platform.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
-func (pq *ProjectQuery) GroupBy(field string, fields ...string) *ProjectGroupBy {
-	group := &ProjectGroupBy{config: pq.config}
+func (pq *PlatformQuery) GroupBy(field string, fields ...string) *PlatformGroupBy {
+	group := &PlatformGroupBy{config: pq.config}
 	group.fields = append([]string{field}, fields...)
 	group.path = func(ctx context.Context) (prev *sql.Selector, err error) {
 		if err := pq.prepareQuery(ctx); err != nil {
@@ -321,18 +322,18 @@ func (pq *ProjectQuery) GroupBy(field string, fields ...string) *ProjectGroupBy 
 //		Name string `json:"name,omitempty"`
 //	}
 //
-//	client.Project.Query().
-//		Select(project.FieldName).
+//	client.Platform.Query().
+//		Select(platform.FieldName).
 //		Scan(ctx, &v)
 //
-func (pq *ProjectQuery) Select(fields ...string) *ProjectSelect {
+func (pq *PlatformQuery) Select(fields ...string) *PlatformSelect {
 	pq.fields = append(pq.fields, fields...)
-	return &ProjectSelect{ProjectQuery: pq}
+	return &PlatformSelect{PlatformQuery: pq}
 }
 
-func (pq *ProjectQuery) prepareQuery(ctx context.Context) error {
+func (pq *PlatformQuery) prepareQuery(ctx context.Context) error {
 	for _, f := range pq.fields {
-		if !project.ValidColumn(f) {
+		if !platform.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -346,16 +347,16 @@ func (pq *ProjectQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (pq *ProjectQuery) sqlAll(ctx context.Context) ([]*Project, error) {
+func (pq *PlatformQuery) sqlAll(ctx context.Context) ([]*Platform, error) {
 	var (
-		nodes       = []*Project{}
+		nodes       = []*Platform{}
 		_spec       = pq.querySpec()
 		loadedTypes = [1]bool{
-			pq.withTopic != nil,
+			pq.withTopics != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
-		node := &Project{config: pq.config}
+		node := &Platform{config: pq.config}
 		nodes = append(nodes, node)
 		return node.scanValues(columns)
 	}
@@ -374,36 +375,35 @@ func (pq *ProjectQuery) sqlAll(ctx context.Context) ([]*Project, error) {
 		return nodes, nil
 	}
 
-	if query := pq.withTopic; query != nil {
-		ids := make([]int, 0, len(nodes))
-		nodeids := make(map[int][]*Project)
+	if query := pq.withTopics; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Platform)
 		for i := range nodes {
-			fk := nodes[i].TopicID
-			if _, ok := nodeids[fk]; !ok {
-				ids = append(ids, fk)
-			}
-			nodeids[fk] = append(nodeids[fk], nodes[i])
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Topics = []*Topic{}
 		}
-		query.Where(topic.IDIn(ids...))
+		query.Where(predicate.Topic(func(s *sql.Selector) {
+			s.Where(sql.InValues(platform.TopicsColumn, fks...))
+		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
 		}
 		for _, n := range neighbors {
-			nodes, ok := nodeids[n.ID]
+			fk := n.PlatformID
+			node, ok := nodeids[fk]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "topic_id" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "platform_id" returned %v for node %v`, fk, n.ID)
 			}
-			for i := range nodes {
-				nodes[i].Edges.Topic = n
-			}
+			node.Edges.Topics = append(node.Edges.Topics, n)
 		}
 	}
 
 	return nodes, nil
 }
 
-func (pq *ProjectQuery) sqlCount(ctx context.Context) (int, error) {
+func (pq *PlatformQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
 	_spec.Node.Columns = pq.fields
 	if len(pq.fields) > 0 {
@@ -412,7 +412,7 @@ func (pq *ProjectQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, pq.driver, _spec)
 }
 
-func (pq *ProjectQuery) sqlExist(ctx context.Context) (bool, error) {
+func (pq *PlatformQuery) sqlExist(ctx context.Context) (bool, error) {
 	n, err := pq.sqlCount(ctx)
 	if err != nil {
 		return false, fmt.Errorf("ent: check existence: %w", err)
@@ -420,14 +420,14 @@ func (pq *ProjectQuery) sqlExist(ctx context.Context) (bool, error) {
 	return n > 0, nil
 }
 
-func (pq *ProjectQuery) querySpec() *sqlgraph.QuerySpec {
+func (pq *PlatformQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := &sqlgraph.QuerySpec{
 		Node: &sqlgraph.NodeSpec{
-			Table:   project.Table,
-			Columns: project.Columns,
+			Table:   platform.Table,
+			Columns: platform.Columns,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: project.FieldID,
+				Column: platform.FieldID,
 			},
 		},
 		From:   pq.sql,
@@ -438,9 +438,9 @@ func (pq *ProjectQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := pq.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, project.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, platform.FieldID)
 		for i := range fields {
-			if fields[i] != project.FieldID {
+			if fields[i] != platform.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -468,12 +468,12 @@ func (pq *ProjectQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (pq *ProjectQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (pq *PlatformQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(pq.driver.Dialect())
-	t1 := builder.Table(project.Table)
+	t1 := builder.Table(platform.Table)
 	columns := pq.fields
 	if len(columns) == 0 {
-		columns = project.Columns
+		columns = platform.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if pq.sql != nil {
@@ -500,8 +500,8 @@ func (pq *ProjectQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// ProjectGroupBy is the group-by builder for Project entities.
-type ProjectGroupBy struct {
+// PlatformGroupBy is the group-by builder for Platform entities.
+type PlatformGroupBy struct {
 	config
 	fields []string
 	fns    []AggregateFunc
@@ -511,13 +511,13 @@ type ProjectGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (pgb *ProjectGroupBy) Aggregate(fns ...AggregateFunc) *ProjectGroupBy {
+func (pgb *PlatformGroupBy) Aggregate(fns ...AggregateFunc) *PlatformGroupBy {
 	pgb.fns = append(pgb.fns, fns...)
 	return pgb
 }
 
 // Scan applies the group-by query and scans the result into the given value.
-func (pgb *ProjectGroupBy) Scan(ctx context.Context, v interface{}) error {
+func (pgb *PlatformGroupBy) Scan(ctx context.Context, v interface{}) error {
 	query, err := pgb.path(ctx)
 	if err != nil {
 		return err
@@ -527,7 +527,7 @@ func (pgb *ProjectGroupBy) Scan(ctx context.Context, v interface{}) error {
 }
 
 // ScanX is like Scan, but panics if an error occurs.
-func (pgb *ProjectGroupBy) ScanX(ctx context.Context, v interface{}) {
+func (pgb *PlatformGroupBy) ScanX(ctx context.Context, v interface{}) {
 	if err := pgb.Scan(ctx, v); err != nil {
 		panic(err)
 	}
@@ -535,9 +535,9 @@ func (pgb *ProjectGroupBy) ScanX(ctx context.Context, v interface{}) {
 
 // Strings returns list of strings from group-by.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Strings(ctx context.Context) ([]string, error) {
+func (pgb *PlatformGroupBy) Strings(ctx context.Context) ([]string, error) {
 	if len(pgb.fields) > 1 {
-		return nil, errors.New("ent: ProjectGroupBy.Strings is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: PlatformGroupBy.Strings is not achievable when grouping more than 1 field")
 	}
 	var v []string
 	if err := pgb.Scan(ctx, &v); err != nil {
@@ -547,7 +547,7 @@ func (pgb *ProjectGroupBy) Strings(ctx context.Context) ([]string, error) {
 }
 
 // StringsX is like Strings, but panics if an error occurs.
-func (pgb *ProjectGroupBy) StringsX(ctx context.Context) []string {
+func (pgb *PlatformGroupBy) StringsX(ctx context.Context) []string {
 	v, err := pgb.Strings(ctx)
 	if err != nil {
 		panic(err)
@@ -557,7 +557,7 @@ func (pgb *ProjectGroupBy) StringsX(ctx context.Context) []string {
 
 // String returns a single string from a group-by query.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) String(ctx context.Context) (_ string, err error) {
+func (pgb *PlatformGroupBy) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = pgb.Strings(ctx); err != nil {
 		return
@@ -566,15 +566,15 @@ func (pgb *ProjectGroupBy) String(ctx context.Context) (_ string, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectGroupBy.Strings returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformGroupBy.Strings returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // StringX is like String, but panics if an error occurs.
-func (pgb *ProjectGroupBy) StringX(ctx context.Context) string {
+func (pgb *PlatformGroupBy) StringX(ctx context.Context) string {
 	v, err := pgb.String(ctx)
 	if err != nil {
 		panic(err)
@@ -584,9 +584,9 @@ func (pgb *ProjectGroupBy) StringX(ctx context.Context) string {
 
 // Ints returns list of ints from group-by.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Ints(ctx context.Context) ([]int, error) {
+func (pgb *PlatformGroupBy) Ints(ctx context.Context) ([]int, error) {
 	if len(pgb.fields) > 1 {
-		return nil, errors.New("ent: ProjectGroupBy.Ints is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: PlatformGroupBy.Ints is not achievable when grouping more than 1 field")
 	}
 	var v []int
 	if err := pgb.Scan(ctx, &v); err != nil {
@@ -596,7 +596,7 @@ func (pgb *ProjectGroupBy) Ints(ctx context.Context) ([]int, error) {
 }
 
 // IntsX is like Ints, but panics if an error occurs.
-func (pgb *ProjectGroupBy) IntsX(ctx context.Context) []int {
+func (pgb *PlatformGroupBy) IntsX(ctx context.Context) []int {
 	v, err := pgb.Ints(ctx)
 	if err != nil {
 		panic(err)
@@ -606,7 +606,7 @@ func (pgb *ProjectGroupBy) IntsX(ctx context.Context) []int {
 
 // Int returns a single int from a group-by query.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Int(ctx context.Context) (_ int, err error) {
+func (pgb *PlatformGroupBy) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = pgb.Ints(ctx); err != nil {
 		return
@@ -615,15 +615,15 @@ func (pgb *ProjectGroupBy) Int(ctx context.Context) (_ int, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectGroupBy.Ints returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformGroupBy.Ints returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // IntX is like Int, but panics if an error occurs.
-func (pgb *ProjectGroupBy) IntX(ctx context.Context) int {
+func (pgb *PlatformGroupBy) IntX(ctx context.Context) int {
 	v, err := pgb.Int(ctx)
 	if err != nil {
 		panic(err)
@@ -633,9 +633,9 @@ func (pgb *ProjectGroupBy) IntX(ctx context.Context) int {
 
 // Float64s returns list of float64s from group-by.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Float64s(ctx context.Context) ([]float64, error) {
+func (pgb *PlatformGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 	if len(pgb.fields) > 1 {
-		return nil, errors.New("ent: ProjectGroupBy.Float64s is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: PlatformGroupBy.Float64s is not achievable when grouping more than 1 field")
 	}
 	var v []float64
 	if err := pgb.Scan(ctx, &v); err != nil {
@@ -645,7 +645,7 @@ func (pgb *ProjectGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 }
 
 // Float64sX is like Float64s, but panics if an error occurs.
-func (pgb *ProjectGroupBy) Float64sX(ctx context.Context) []float64 {
+func (pgb *PlatformGroupBy) Float64sX(ctx context.Context) []float64 {
 	v, err := pgb.Float64s(ctx)
 	if err != nil {
 		panic(err)
@@ -655,7 +655,7 @@ func (pgb *ProjectGroupBy) Float64sX(ctx context.Context) []float64 {
 
 // Float64 returns a single float64 from a group-by query.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Float64(ctx context.Context) (_ float64, err error) {
+func (pgb *PlatformGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = pgb.Float64s(ctx); err != nil {
 		return
@@ -664,15 +664,15 @@ func (pgb *ProjectGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectGroupBy.Float64s returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformGroupBy.Float64s returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // Float64X is like Float64, but panics if an error occurs.
-func (pgb *ProjectGroupBy) Float64X(ctx context.Context) float64 {
+func (pgb *PlatformGroupBy) Float64X(ctx context.Context) float64 {
 	v, err := pgb.Float64(ctx)
 	if err != nil {
 		panic(err)
@@ -682,9 +682,9 @@ func (pgb *ProjectGroupBy) Float64X(ctx context.Context) float64 {
 
 // Bools returns list of bools from group-by.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Bools(ctx context.Context) ([]bool, error) {
+func (pgb *PlatformGroupBy) Bools(ctx context.Context) ([]bool, error) {
 	if len(pgb.fields) > 1 {
-		return nil, errors.New("ent: ProjectGroupBy.Bools is not achievable when grouping more than 1 field")
+		return nil, errors.New("ent: PlatformGroupBy.Bools is not achievable when grouping more than 1 field")
 	}
 	var v []bool
 	if err := pgb.Scan(ctx, &v); err != nil {
@@ -694,7 +694,7 @@ func (pgb *ProjectGroupBy) Bools(ctx context.Context) ([]bool, error) {
 }
 
 // BoolsX is like Bools, but panics if an error occurs.
-func (pgb *ProjectGroupBy) BoolsX(ctx context.Context) []bool {
+func (pgb *PlatformGroupBy) BoolsX(ctx context.Context) []bool {
 	v, err := pgb.Bools(ctx)
 	if err != nil {
 		panic(err)
@@ -704,7 +704,7 @@ func (pgb *ProjectGroupBy) BoolsX(ctx context.Context) []bool {
 
 // Bool returns a single bool from a group-by query.
 // It is only allowed when executing a group-by query with one field.
-func (pgb *ProjectGroupBy) Bool(ctx context.Context) (_ bool, err error) {
+func (pgb *PlatformGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = pgb.Bools(ctx); err != nil {
 		return
@@ -713,15 +713,15 @@ func (pgb *ProjectGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectGroupBy.Bools returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformGroupBy.Bools returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // BoolX is like Bool, but panics if an error occurs.
-func (pgb *ProjectGroupBy) BoolX(ctx context.Context) bool {
+func (pgb *PlatformGroupBy) BoolX(ctx context.Context) bool {
 	v, err := pgb.Bool(ctx)
 	if err != nil {
 		panic(err)
@@ -729,9 +729,9 @@ func (pgb *ProjectGroupBy) BoolX(ctx context.Context) bool {
 	return v
 }
 
-func (pgb *ProjectGroupBy) sqlScan(ctx context.Context, v interface{}) error {
+func (pgb *PlatformGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 	for _, f := range pgb.fields {
-		if !project.ValidColumn(f) {
+		if !platform.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
 		}
 	}
@@ -748,7 +748,7 @@ func (pgb *ProjectGroupBy) sqlScan(ctx context.Context, v interface{}) error {
 	return sql.ScanSlice(rows, v)
 }
 
-func (pgb *ProjectGroupBy) sqlQuery() *sql.Selector {
+func (pgb *PlatformGroupBy) sqlQuery() *sql.Selector {
 	selector := pgb.sql.Select()
 	aggregation := make([]string, 0, len(pgb.fns))
 	for _, fn := range pgb.fns {
@@ -767,33 +767,33 @@ func (pgb *ProjectGroupBy) sqlQuery() *sql.Selector {
 	return selector.GroupBy(selector.Columns(pgb.fields...)...)
 }
 
-// ProjectSelect is the builder for selecting fields of Project entities.
-type ProjectSelect struct {
-	*ProjectQuery
+// PlatformSelect is the builder for selecting fields of Platform entities.
+type PlatformSelect struct {
+	*PlatformQuery
 	// intermediate query (i.e. traversal path).
 	sql *sql.Selector
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ps *ProjectSelect) Scan(ctx context.Context, v interface{}) error {
+func (ps *PlatformSelect) Scan(ctx context.Context, v interface{}) error {
 	if err := ps.prepareQuery(ctx); err != nil {
 		return err
 	}
-	ps.sql = ps.ProjectQuery.sqlQuery(ctx)
+	ps.sql = ps.PlatformQuery.sqlQuery(ctx)
 	return ps.sqlScan(ctx, v)
 }
 
 // ScanX is like Scan, but panics if an error occurs.
-func (ps *ProjectSelect) ScanX(ctx context.Context, v interface{}) {
+func (ps *PlatformSelect) ScanX(ctx context.Context, v interface{}) {
 	if err := ps.Scan(ctx, v); err != nil {
 		panic(err)
 	}
 }
 
 // Strings returns list of strings from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Strings(ctx context.Context) ([]string, error) {
+func (ps *PlatformSelect) Strings(ctx context.Context) ([]string, error) {
 	if len(ps.fields) > 1 {
-		return nil, errors.New("ent: ProjectSelect.Strings is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: PlatformSelect.Strings is not achievable when selecting more than 1 field")
 	}
 	var v []string
 	if err := ps.Scan(ctx, &v); err != nil {
@@ -803,7 +803,7 @@ func (ps *ProjectSelect) Strings(ctx context.Context) ([]string, error) {
 }
 
 // StringsX is like Strings, but panics if an error occurs.
-func (ps *ProjectSelect) StringsX(ctx context.Context) []string {
+func (ps *PlatformSelect) StringsX(ctx context.Context) []string {
 	v, err := ps.Strings(ctx)
 	if err != nil {
 		panic(err)
@@ -812,7 +812,7 @@ func (ps *ProjectSelect) StringsX(ctx context.Context) []string {
 }
 
 // String returns a single string from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) String(ctx context.Context) (_ string, err error) {
+func (ps *PlatformSelect) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = ps.Strings(ctx); err != nil {
 		return
@@ -821,15 +821,15 @@ func (ps *ProjectSelect) String(ctx context.Context) (_ string, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectSelect.Strings returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformSelect.Strings returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // StringX is like String, but panics if an error occurs.
-func (ps *ProjectSelect) StringX(ctx context.Context) string {
+func (ps *PlatformSelect) StringX(ctx context.Context) string {
 	v, err := ps.String(ctx)
 	if err != nil {
 		panic(err)
@@ -838,9 +838,9 @@ func (ps *ProjectSelect) StringX(ctx context.Context) string {
 }
 
 // Ints returns list of ints from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Ints(ctx context.Context) ([]int, error) {
+func (ps *PlatformSelect) Ints(ctx context.Context) ([]int, error) {
 	if len(ps.fields) > 1 {
-		return nil, errors.New("ent: ProjectSelect.Ints is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: PlatformSelect.Ints is not achievable when selecting more than 1 field")
 	}
 	var v []int
 	if err := ps.Scan(ctx, &v); err != nil {
@@ -850,7 +850,7 @@ func (ps *ProjectSelect) Ints(ctx context.Context) ([]int, error) {
 }
 
 // IntsX is like Ints, but panics if an error occurs.
-func (ps *ProjectSelect) IntsX(ctx context.Context) []int {
+func (ps *PlatformSelect) IntsX(ctx context.Context) []int {
 	v, err := ps.Ints(ctx)
 	if err != nil {
 		panic(err)
@@ -859,7 +859,7 @@ func (ps *ProjectSelect) IntsX(ctx context.Context) []int {
 }
 
 // Int returns a single int from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Int(ctx context.Context) (_ int, err error) {
+func (ps *PlatformSelect) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = ps.Ints(ctx); err != nil {
 		return
@@ -868,15 +868,15 @@ func (ps *ProjectSelect) Int(ctx context.Context) (_ int, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectSelect.Ints returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformSelect.Ints returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // IntX is like Int, but panics if an error occurs.
-func (ps *ProjectSelect) IntX(ctx context.Context) int {
+func (ps *PlatformSelect) IntX(ctx context.Context) int {
 	v, err := ps.Int(ctx)
 	if err != nil {
 		panic(err)
@@ -885,9 +885,9 @@ func (ps *ProjectSelect) IntX(ctx context.Context) int {
 }
 
 // Float64s returns list of float64s from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Float64s(ctx context.Context) ([]float64, error) {
+func (ps *PlatformSelect) Float64s(ctx context.Context) ([]float64, error) {
 	if len(ps.fields) > 1 {
-		return nil, errors.New("ent: ProjectSelect.Float64s is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: PlatformSelect.Float64s is not achievable when selecting more than 1 field")
 	}
 	var v []float64
 	if err := ps.Scan(ctx, &v); err != nil {
@@ -897,7 +897,7 @@ func (ps *ProjectSelect) Float64s(ctx context.Context) ([]float64, error) {
 }
 
 // Float64sX is like Float64s, but panics if an error occurs.
-func (ps *ProjectSelect) Float64sX(ctx context.Context) []float64 {
+func (ps *PlatformSelect) Float64sX(ctx context.Context) []float64 {
 	v, err := ps.Float64s(ctx)
 	if err != nil {
 		panic(err)
@@ -906,7 +906,7 @@ func (ps *ProjectSelect) Float64sX(ctx context.Context) []float64 {
 }
 
 // Float64 returns a single float64 from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Float64(ctx context.Context) (_ float64, err error) {
+func (ps *PlatformSelect) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = ps.Float64s(ctx); err != nil {
 		return
@@ -915,15 +915,15 @@ func (ps *ProjectSelect) Float64(ctx context.Context) (_ float64, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectSelect.Float64s returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformSelect.Float64s returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // Float64X is like Float64, but panics if an error occurs.
-func (ps *ProjectSelect) Float64X(ctx context.Context) float64 {
+func (ps *PlatformSelect) Float64X(ctx context.Context) float64 {
 	v, err := ps.Float64(ctx)
 	if err != nil {
 		panic(err)
@@ -932,9 +932,9 @@ func (ps *ProjectSelect) Float64X(ctx context.Context) float64 {
 }
 
 // Bools returns list of bools from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Bools(ctx context.Context) ([]bool, error) {
+func (ps *PlatformSelect) Bools(ctx context.Context) ([]bool, error) {
 	if len(ps.fields) > 1 {
-		return nil, errors.New("ent: ProjectSelect.Bools is not achievable when selecting more than 1 field")
+		return nil, errors.New("ent: PlatformSelect.Bools is not achievable when selecting more than 1 field")
 	}
 	var v []bool
 	if err := ps.Scan(ctx, &v); err != nil {
@@ -944,7 +944,7 @@ func (ps *ProjectSelect) Bools(ctx context.Context) ([]bool, error) {
 }
 
 // BoolsX is like Bools, but panics if an error occurs.
-func (ps *ProjectSelect) BoolsX(ctx context.Context) []bool {
+func (ps *PlatformSelect) BoolsX(ctx context.Context) []bool {
 	v, err := ps.Bools(ctx)
 	if err != nil {
 		panic(err)
@@ -953,7 +953,7 @@ func (ps *ProjectSelect) BoolsX(ctx context.Context) []bool {
 }
 
 // Bool returns a single bool from a selector. It is only allowed when selecting one field.
-func (ps *ProjectSelect) Bool(ctx context.Context) (_ bool, err error) {
+func (ps *PlatformSelect) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = ps.Bools(ctx); err != nil {
 		return
@@ -962,15 +962,15 @@ func (ps *ProjectSelect) Bool(ctx context.Context) (_ bool, err error) {
 	case 1:
 		return v[0], nil
 	case 0:
-		err = &NotFoundError{project.Label}
+		err = &NotFoundError{platform.Label}
 	default:
-		err = fmt.Errorf("ent: ProjectSelect.Bools returned %d results when one was expected", len(v))
+		err = fmt.Errorf("ent: PlatformSelect.Bools returned %d results when one was expected", len(v))
 	}
 	return
 }
 
 // BoolX is like Bool, but panics if an error occurs.
-func (ps *ProjectSelect) BoolX(ctx context.Context) bool {
+func (ps *PlatformSelect) BoolX(ctx context.Context) bool {
 	v, err := ps.Bool(ctx)
 	if err != nil {
 		panic(err)
@@ -978,7 +978,7 @@ func (ps *ProjectSelect) BoolX(ctx context.Context) bool {
 	return v
 }
 
-func (ps *ProjectSelect) sqlScan(ctx context.Context, v interface{}) error {
+func (ps *PlatformSelect) sqlScan(ctx context.Context, v interface{}) error {
 	rows := &sql.Rows{}
 	query, args := ps.sql.Query()
 	if err := ps.driver.Query(ctx, query, args, rows); err != nil {

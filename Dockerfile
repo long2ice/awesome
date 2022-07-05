@@ -10,9 +10,13 @@ COPY go.sum .
 RUN go mod download
 COPY . .
 RUN go build -o app ./
+RUN go build -o worker ./worker
+RUN go build -o scheduler ./scheduler
 
 FROM scratch
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=builder /build/app /
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /build/app /
+COPY --from=builder /build/worker /
+COPY --from=builder /build/scheduler /
 ENTRYPOINT ["/app"]

@@ -9,25 +9,25 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/predicate"
-	"github.com/long2ice/awesome/ent/project"
 )
 
-// ProjectDelete is the builder for deleting a Project entity.
-type ProjectDelete struct {
+// PlatformDelete is the builder for deleting a Platform entity.
+type PlatformDelete struct {
 	config
 	hooks    []Hook
-	mutation *ProjectMutation
+	mutation *PlatformMutation
 }
 
-// Where appends a list predicates to the ProjectDelete builder.
-func (pd *ProjectDelete) Where(ps ...predicate.Project) *ProjectDelete {
+// Where appends a list predicates to the PlatformDelete builder.
+func (pd *PlatformDelete) Where(ps ...predicate.Platform) *PlatformDelete {
 	pd.mutation.Where(ps...)
 	return pd
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (pd *ProjectDelete) Exec(ctx context.Context) (int, error) {
+func (pd *PlatformDelete) Exec(ctx context.Context) (int, error) {
 	var (
 		err      error
 		affected int
@@ -36,7 +36,7 @@ func (pd *ProjectDelete) Exec(ctx context.Context) (int, error) {
 		affected, err = pd.sqlExec(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ProjectMutation)
+			mutation, ok := m.(*PlatformMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
 			}
@@ -59,7 +59,7 @@ func (pd *ProjectDelete) Exec(ctx context.Context) (int, error) {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pd *ProjectDelete) ExecX(ctx context.Context) int {
+func (pd *PlatformDelete) ExecX(ctx context.Context) int {
 	n, err := pd.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -67,13 +67,13 @@ func (pd *ProjectDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (pd *ProjectDelete) sqlExec(ctx context.Context) (int, error) {
+func (pd *PlatformDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := &sqlgraph.DeleteSpec{
 		Node: &sqlgraph.NodeSpec{
-			Table: project.Table,
+			Table: platform.Table,
 			ID: &sqlgraph.FieldSpec{
 				Type:   field.TypeInt,
-				Column: project.FieldID,
+				Column: platform.FieldID,
 			},
 		},
 	}
@@ -87,25 +87,25 @@ func (pd *ProjectDelete) sqlExec(ctx context.Context) (int, error) {
 	return sqlgraph.DeleteNodes(ctx, pd.driver, _spec)
 }
 
-// ProjectDeleteOne is the builder for deleting a single Project entity.
-type ProjectDeleteOne struct {
-	pd *ProjectDelete
+// PlatformDeleteOne is the builder for deleting a single Platform entity.
+type PlatformDeleteOne struct {
+	pd *PlatformDelete
 }
 
 // Exec executes the deletion query.
-func (pdo *ProjectDeleteOne) Exec(ctx context.Context) error {
+func (pdo *PlatformDeleteOne) Exec(ctx context.Context) error {
 	n, err := pdo.pd.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{project.Label}
+		return &NotFoundError{platform.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (pdo *ProjectDeleteOne) ExecX(ctx context.Context) {
+func (pdo *PlatformDeleteOne) ExecX(ctx context.Context) {
 	pdo.pd.ExecX(ctx)
 }

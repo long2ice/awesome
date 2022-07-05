@@ -9,38 +9,47 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldSubName holds the string denoting the sub_name field in the database.
+	FieldSubName = "sub_name"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
-	// FieldTopicCategoryID holds the string denoting the topic_category_id field in the database.
-	FieldTopicCategoryID = "topic_category_id"
-	// EdgeTopiccategory holds the string denoting the topiccategory edge name in mutations.
-	EdgeTopiccategory = "topiccategory"
-	// EdgeProjects holds the string denoting the projects edge name in mutations.
-	EdgeProjects = "projects"
+	// FieldURL holds the string denoting the url field in the database.
+	FieldURL = "url"
+	// FieldGithubURL holds the string denoting the github_url field in the database.
+	FieldGithubURL = "github_url"
+	// FieldPlatformID holds the string denoting the platform_id field in the database.
+	FieldPlatformID = "platform_id"
+	// EdgePlatform holds the string denoting the platform edge name in mutations.
+	EdgePlatform = "platform"
+	// EdgeRepos holds the string denoting the repos edge name in mutations.
+	EdgeRepos = "repos"
 	// Table holds the table name of the topic in the database.
 	Table = "topic"
-	// TopiccategoryTable is the table that holds the topiccategory relation/edge.
-	TopiccategoryTable = "topic"
-	// TopiccategoryInverseTable is the table name for the TopicCategory entity.
-	// It exists in this package in order to avoid circular dependency with the "topiccategory" package.
-	TopiccategoryInverseTable = "topic_category"
-	// TopiccategoryColumn is the table column denoting the topiccategory relation/edge.
-	TopiccategoryColumn = "topic_category_id"
-	// ProjectsTable is the table that holds the projects relation/edge.
-	ProjectsTable = "project"
-	// ProjectsInverseTable is the table name for the Project entity.
-	// It exists in this package in order to avoid circular dependency with the "project" package.
-	ProjectsInverseTable = "project"
-	// ProjectsColumn is the table column denoting the projects relation/edge.
-	ProjectsColumn = "topic_id"
+	// PlatformTable is the table that holds the platform relation/edge.
+	PlatformTable = "topic"
+	// PlatformInverseTable is the table name for the Platform entity.
+	// It exists in this package in order to avoid circular dependency with the "platform" package.
+	PlatformInverseTable = "platform"
+	// PlatformColumn is the table column denoting the platform relation/edge.
+	PlatformColumn = "platform_id"
+	// ReposTable is the table that holds the repos relation/edge.
+	ReposTable = "repo"
+	// ReposInverseTable is the table name for the Repo entity.
+	// It exists in this package in order to avoid circular dependency with the "repo" package.
+	ReposInverseTable = "repo"
+	// ReposColumn is the table column denoting the repos relation/edge.
+	ReposColumn = "topic_id"
 )
 
 // Columns holds all SQL columns for topic fields.
 var Columns = []string{
 	FieldID,
 	FieldName,
+	FieldSubName,
 	FieldDescription,
-	FieldTopicCategoryID,
+	FieldURL,
+	FieldGithubURL,
+	FieldPlatformID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

@@ -17,16 +17,19 @@ type Topic struct {
 func (Topic) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name"),
+		field.String("sub_name"),
 		field.String("description"),
-		field.Int("topic_category_id"),
+		field.String("url").Unique(),
+		field.String("github_url"),
+		field.Int("platform_id"),
 	}
 }
 
 // Edges of the Topic.
 func (Topic) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("topiccategory", TopicCategory.Type).Ref("topics").Required().Field("topic_category_id").Unique(),
-		edge.To("projects", Project.Type),
+		edge.From("platform", Platform.Type).Ref("topics").Required().Field("platform_id").Unique(),
+		edge.To("repos", Repo.Type),
 	}
 }
 

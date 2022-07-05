@@ -9,26 +9,41 @@ import (
 )
 
 var (
-	// ProjectColumns holds the columns for the "project" table.
-	ProjectColumns = []*schema.Column{
+	// PlatformColumns holds the columns for the "platform" table.
+	PlatformColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString},
-		{Name: "author", Type: field.TypeString},
-		{Name: "author_email", Type: field.TypeString},
-		{Name: "url", Type: field.TypeString},
-		{Name: "star", Type: field.TypeInt},
+		{Name: "icon", Type: field.TypeString, Nullable: true},
+	}
+	// PlatformTable holds the schema information for the "platform" table.
+	PlatformTable = &schema.Table{
+		Name:       "platform",
+		Columns:    PlatformColumns,
+		PrimaryKey: []*schema.Column{PlatformColumns[0]},
+	}
+	// RepoColumns holds the columns for the "repo" table.
+	RepoColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "url", Type: field.TypeString, Unique: true},
+		{Name: "sub_topic", Type: field.TypeString},
+		{Name: "type", Type: field.TypeEnum, Enums: []string{"repo", "resource"}},
+		{Name: "star_count", Type: field.TypeInt, Nullable: true},
+		{Name: "fork_count", Type: field.TypeInt, Nullable: true},
+		{Name: "watch_count", Type: field.TypeInt, Nullable: true},
+		{Name: "updated_at", Type: field.TypeTime, Nullable: true},
 		{Name: "topic_id", Type: field.TypeInt},
 	}
-	// ProjectTable holds the schema information for the "project" table.
-	ProjectTable = &schema.Table{
-		Name:       "project",
-		Columns:    ProjectColumns,
-		PrimaryKey: []*schema.Column{ProjectColumns[0]},
+	// RepoTable holds the schema information for the "repo" table.
+	RepoTable = &schema.Table{
+		Name:       "repo",
+		Columns:    RepoColumns,
+		PrimaryKey: []*schema.Column{RepoColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "project_topic_projects",
-				Columns:    []*schema.Column{ProjectColumns[7]},
+				Symbol:     "repo_topic_repos",
+				Columns:    []*schema.Column{RepoColumns[10]},
 				RefColumns: []*schema.Column{TopicColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -38,8 +53,11 @@ var (
 	TopicColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
+		{Name: "sub_name", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
-		{Name: "topic_category_id", Type: field.TypeInt},
+		{Name: "url", Type: field.TypeString, Unique: true},
+		{Name: "github_url", Type: field.TypeString},
+		{Name: "platform_id", Type: field.TypeInt},
 	}
 	// TopicTable holds the schema information for the "topic" table.
 	TopicTable = &schema.Table{
@@ -48,43 +66,31 @@ var (
 		PrimaryKey: []*schema.Column{TopicColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "topic_topic_category_topics",
-				Columns:    []*schema.Column{TopicColumns[3]},
-				RefColumns: []*schema.Column{TopicCategoryColumns[0]},
+				Symbol:     "topic_platform_topics",
+				Columns:    []*schema.Column{TopicColumns[6]},
+				RefColumns: []*schema.Column{PlatformColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 	}
-	// TopicCategoryColumns holds the columns for the "topic_category" table.
-	TopicCategoryColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "icon", Type: field.TypeString},
-	}
-	// TopicCategoryTable holds the schema information for the "topic_category" table.
-	TopicCategoryTable = &schema.Table{
-		Name:       "topic_category",
-		Columns:    TopicCategoryColumns,
-		PrimaryKey: []*schema.Column{TopicCategoryColumns[0]},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		ProjectTable,
+		PlatformTable,
+		RepoTable,
 		TopicTable,
-		TopicCategoryTable,
 	}
 )
 
 func init() {
-	ProjectTable.ForeignKeys[0].RefTable = TopicTable
-	ProjectTable.Annotation = &entsql.Annotation{
-		Table: "project",
+	PlatformTable.Annotation = &entsql.Annotation{
+		Table: "platform",
 	}
-	TopicTable.ForeignKeys[0].RefTable = TopicCategoryTable
+	RepoTable.ForeignKeys[0].RefTable = TopicTable
+	RepoTable.Annotation = &entsql.Annotation{
+		Table: "repo",
+	}
+	TopicTable.ForeignKeys[0].RefTable = PlatformTable
 	TopicTable.Annotation = &entsql.Annotation{
 		Table: "topic",
-	}
-	TopicCategoryTable.Annotation = &entsql.Annotation{
-		Table: "topic_category",
 	}
 }

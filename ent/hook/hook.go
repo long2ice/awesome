@@ -9,15 +9,28 @@ import (
 	"github.com/long2ice/awesome/ent"
 )
 
-// The ProjectFunc type is an adapter to allow the use of ordinary
-// function as Project mutator.
-type ProjectFunc func(context.Context, *ent.ProjectMutation) (ent.Value, error)
+// The PlatformFunc type is an adapter to allow the use of ordinary
+// function as Platform mutator.
+type PlatformFunc func(context.Context, *ent.PlatformMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f ProjectFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.ProjectMutation)
+func (f PlatformFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.PlatformMutation)
 	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProjectMutation", m)
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PlatformMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The RepoFunc type is an adapter to allow the use of ordinary
+// function as Repo mutator.
+type RepoFunc func(context.Context, *ent.RepoMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f RepoFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.RepoMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RepoMutation", m)
 	}
 	return f(ctx, mv)
 }
@@ -31,19 +44,6 @@ func (f TopicFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	mv, ok := m.(*ent.TopicMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TopicMutation", m)
-	}
-	return f(ctx, mv)
-}
-
-// The TopicCategoryFunc type is an adapter to allow the use of ordinary
-// function as TopicCategory mutator.
-type TopicCategoryFunc func(context.Context, *ent.TopicCategoryMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f TopicCategoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.TopicCategoryMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TopicCategoryMutation", m)
 	}
 	return f(ctx, mv)
 }

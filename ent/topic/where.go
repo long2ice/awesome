@@ -98,6 +98,13 @@ func Name(v string) predicate.Topic {
 	})
 }
 
+// SubName applies equality check predicate on the "sub_name" field. It's identical to SubNameEQ.
+func SubName(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSubName), v))
+	})
+}
+
 // Description applies equality check predicate on the "description" field. It's identical to DescriptionEQ.
 func Description(v string) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
@@ -105,10 +112,24 @@ func Description(v string) predicate.Topic {
 	})
 }
 
-// TopicCategoryID applies equality check predicate on the "topic_category_id" field. It's identical to TopicCategoryIDEQ.
-func TopicCategoryID(v int) predicate.Topic {
+// URL applies equality check predicate on the "url" field. It's identical to URLEQ.
+func URL(v string) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTopicCategoryID), v))
+		s.Where(sql.EQ(s.C(FieldURL), v))
+	})
+}
+
+// GithubURL applies equality check predicate on the "github_url" field. It's identical to GithubURLEQ.
+func GithubURL(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldGithubURL), v))
+	})
+}
+
+// PlatformID applies equality check predicate on the "platform_id" field. It's identical to PlatformIDEQ.
+func PlatformID(v int) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlatformID), v))
 	})
 }
 
@@ -223,6 +244,117 @@ func NameContainsFold(v string) predicate.Topic {
 	})
 }
 
+// SubNameEQ applies the EQ predicate on the "sub_name" field.
+func SubNameEQ(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameNEQ applies the NEQ predicate on the "sub_name" field.
+func SubNameNEQ(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameIn applies the In predicate on the "sub_name" field.
+func SubNameIn(vs ...string) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldSubName), v...))
+	})
+}
+
+// SubNameNotIn applies the NotIn predicate on the "sub_name" field.
+func SubNameNotIn(vs ...string) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldSubName), v...))
+	})
+}
+
+// SubNameGT applies the GT predicate on the "sub_name" field.
+func SubNameGT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameGTE applies the GTE predicate on the "sub_name" field.
+func SubNameGTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameLT applies the LT predicate on the "sub_name" field.
+func SubNameLT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameLTE applies the LTE predicate on the "sub_name" field.
+func SubNameLTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameContains applies the Contains predicate on the "sub_name" field.
+func SubNameContains(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameHasPrefix applies the HasPrefix predicate on the "sub_name" field.
+func SubNameHasPrefix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameHasSuffix applies the HasSuffix predicate on the "sub_name" field.
+func SubNameHasSuffix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameEqualFold applies the EqualFold predicate on the "sub_name" field.
+func SubNameEqualFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldSubName), v))
+	})
+}
+
+// SubNameContainsFold applies the ContainsFold predicate on the "sub_name" field.
+func SubNameContainsFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldSubName), v))
+	})
+}
+
 // DescriptionEQ applies the EQ predicate on the "description" field.
 func DescriptionEQ(v string) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
@@ -334,22 +466,22 @@ func DescriptionContainsFold(v string) predicate.Topic {
 	})
 }
 
-// TopicCategoryIDEQ applies the EQ predicate on the "topic_category_id" field.
-func TopicCategoryIDEQ(v int) predicate.Topic {
+// URLEQ applies the EQ predicate on the "url" field.
+func URLEQ(v string) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTopicCategoryID), v))
+		s.Where(sql.EQ(s.C(FieldURL), v))
 	})
 }
 
-// TopicCategoryIDNEQ applies the NEQ predicate on the "topic_category_id" field.
-func TopicCategoryIDNEQ(v int) predicate.Topic {
+// URLNEQ applies the NEQ predicate on the "url" field.
+func URLNEQ(v string) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTopicCategoryID), v))
+		s.Where(sql.NEQ(s.C(FieldURL), v))
 	})
 }
 
-// TopicCategoryIDIn applies the In predicate on the "topic_category_id" field.
-func TopicCategoryIDIn(vs ...int) predicate.Topic {
+// URLIn applies the In predicate on the "url" field.
+func URLIn(vs ...string) predicate.Topic {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -361,12 +493,12 @@ func TopicCategoryIDIn(vs ...int) predicate.Topic {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.In(s.C(FieldTopicCategoryID), v...))
+		s.Where(sql.In(s.C(FieldURL), v...))
 	})
 }
 
-// TopicCategoryIDNotIn applies the NotIn predicate on the "topic_category_id" field.
-func TopicCategoryIDNotIn(vs ...int) predicate.Topic {
+// URLNotIn applies the NotIn predicate on the "url" field.
+func URLNotIn(vs ...string) predicate.Topic {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -378,29 +510,251 @@ func TopicCategoryIDNotIn(vs ...int) predicate.Topic {
 			s.Where(sql.False())
 			return
 		}
-		s.Where(sql.NotIn(s.C(FieldTopicCategoryID), v...))
+		s.Where(sql.NotIn(s.C(FieldURL), v...))
 	})
 }
 
-// HasTopiccategory applies the HasEdge predicate on the "topiccategory" edge.
-func HasTopiccategory() predicate.Topic {
+// URLGT applies the GT predicate on the "url" field.
+func URLGT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldURL), v))
+	})
+}
+
+// URLGTE applies the GTE predicate on the "url" field.
+func URLGTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldURL), v))
+	})
+}
+
+// URLLT applies the LT predicate on the "url" field.
+func URLLT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldURL), v))
+	})
+}
+
+// URLLTE applies the LTE predicate on the "url" field.
+func URLLTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldURL), v))
+	})
+}
+
+// URLContains applies the Contains predicate on the "url" field.
+func URLContains(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldURL), v))
+	})
+}
+
+// URLHasPrefix applies the HasPrefix predicate on the "url" field.
+func URLHasPrefix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldURL), v))
+	})
+}
+
+// URLHasSuffix applies the HasSuffix predicate on the "url" field.
+func URLHasSuffix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldURL), v))
+	})
+}
+
+// URLEqualFold applies the EqualFold predicate on the "url" field.
+func URLEqualFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldURL), v))
+	})
+}
+
+// URLContainsFold applies the ContainsFold predicate on the "url" field.
+func URLContainsFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldURL), v))
+	})
+}
+
+// GithubURLEQ applies the EQ predicate on the "github_url" field.
+func GithubURLEQ(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLNEQ applies the NEQ predicate on the "github_url" field.
+func GithubURLNEQ(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLIn applies the In predicate on the "github_url" field.
+func GithubURLIn(vs ...string) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldGithubURL), v...))
+	})
+}
+
+// GithubURLNotIn applies the NotIn predicate on the "github_url" field.
+func GithubURLNotIn(vs ...string) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldGithubURL), v...))
+	})
+}
+
+// GithubURLGT applies the GT predicate on the "github_url" field.
+func GithubURLGT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLGTE applies the GTE predicate on the "github_url" field.
+func GithubURLGTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLLT applies the LT predicate on the "github_url" field.
+func GithubURLLT(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLLTE applies the LTE predicate on the "github_url" field.
+func GithubURLLTE(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLContains applies the Contains predicate on the "github_url" field.
+func GithubURLContains(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLHasPrefix applies the HasPrefix predicate on the "github_url" field.
+func GithubURLHasPrefix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLHasSuffix applies the HasSuffix predicate on the "github_url" field.
+func GithubURLHasSuffix(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLEqualFold applies the EqualFold predicate on the "github_url" field.
+func GithubURLEqualFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldGithubURL), v))
+	})
+}
+
+// GithubURLContainsFold applies the ContainsFold predicate on the "github_url" field.
+func GithubURLContainsFold(v string) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldGithubURL), v))
+	})
+}
+
+// PlatformIDEQ applies the EQ predicate on the "platform_id" field.
+func PlatformIDEQ(v int) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlatformID), v))
+	})
+}
+
+// PlatformIDNEQ applies the NEQ predicate on the "platform_id" field.
+func PlatformIDNEQ(v int) predicate.Topic {
+	return predicate.Topic(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPlatformID), v))
+	})
+}
+
+// PlatformIDIn applies the In predicate on the "platform_id" field.
+func PlatformIDIn(vs ...int) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldPlatformID), v...))
+	})
+}
+
+// PlatformIDNotIn applies the NotIn predicate on the "platform_id" field.
+func PlatformIDNotIn(vs ...int) predicate.Topic {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Topic(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldPlatformID), v...))
+	})
+}
+
+// HasPlatform applies the HasEdge predicate on the "platform" edge.
+func HasPlatform() predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(TopiccategoryTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, TopiccategoryTable, TopiccategoryColumn),
+			sqlgraph.To(PlatformTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PlatformTable, PlatformColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasTopiccategoryWith applies the HasEdge predicate on the "topiccategory" edge with a given conditions (other predicates).
-func HasTopiccategoryWith(preds ...predicate.TopicCategory) predicate.Topic {
+// HasPlatformWith applies the HasEdge predicate on the "platform" edge with a given conditions (other predicates).
+func HasPlatformWith(preds ...predicate.Platform) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(TopiccategoryInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, TopiccategoryTable, TopiccategoryColumn),
+			sqlgraph.To(PlatformInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, PlatformTable, PlatformColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
@@ -410,25 +764,25 @@ func HasTopiccategoryWith(preds ...predicate.TopicCategory) predicate.Topic {
 	})
 }
 
-// HasProjects applies the HasEdge predicate on the "projects" edge.
-func HasProjects() predicate.Topic {
+// HasRepos applies the HasEdge predicate on the "repos" edge.
+func HasRepos() predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProjectsTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProjectsTable, ProjectsColumn),
+			sqlgraph.To(ReposTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReposTable, ReposColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasProjectsWith applies the HasEdge predicate on the "projects" edge with a given conditions (other predicates).
-func HasProjectsWith(preds ...predicate.Project) predicate.Topic {
+// HasReposWith applies the HasEdge predicate on the "repos" edge with a given conditions (other predicates).
+func HasReposWith(preds ...predicate.Repo) predicate.Topic {
 	return predicate.Topic(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ProjectsInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, ProjectsTable, ProjectsColumn),
+			sqlgraph.To(ReposInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReposTable, ReposColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

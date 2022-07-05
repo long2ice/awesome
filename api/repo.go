@@ -5,12 +5,12 @@ import (
 	"github.com/long2ice/awesome/db"
 )
 
-type ProjectSearch struct {
+type Repo struct {
 	Keyword string `query:"keyword" validate:"required" example:"mysql"`
 	TopicID int    `uri:"topic_id" validate:"required"`
 }
 
-func (p *ProjectSearch) Handler(c *fiber.Ctx) error {
-	projects := db.Client.Project.Query().AllX(c.Context())
+func (p *Repo) Handler(c *fiber.Ctx) error {
+	projects := db.Client.Repo.Query().AllX(c.Context())
 	return c.JSON(projects)
 }

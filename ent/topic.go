@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/topic"
-	"github.com/long2ice/awesome/ent/topiccategory"
 )
 
 // Topic is the model entity for the Topic schema.
@@ -18,10 +18,16 @@ type Topic struct {
 	ID int `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// SubName holds the value of the "sub_name" field.
+	SubName string `json:"sub_name,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
-	// TopicCategoryID holds the value of the "topic_category_id" field.
-	TopicCategoryID int `json:"topic_category_id,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
+	// GithubURL holds the value of the "github_url" field.
+	GithubURL string `json:"github_url,omitempty"`
+	// PlatformID holds the value of the "platform_id" field.
+	PlatformID int `json:"platform_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the TopicQuery when eager-loading is set.
 	Edges TopicEdges `json:"edges"`
@@ -29,36 +35,36 @@ type Topic struct {
 
 // TopicEdges holds the relations/edges for other nodes in the graph.
 type TopicEdges struct {
-	// Topiccategory holds the value of the topiccategory edge.
-	Topiccategory *TopicCategory `json:"topiccategory,omitempty"`
-	// Projects holds the value of the projects edge.
-	Projects []*Project `json:"projects,omitempty"`
+	// Platform holds the value of the platform edge.
+	Platform *Platform `json:"platform,omitempty"`
+	// Repos holds the value of the repos edge.
+	Repos []*Repo `json:"repos,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
 }
 
-// TopiccategoryOrErr returns the Topiccategory value or an error if the edge
+// PlatformOrErr returns the Platform value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e TopicEdges) TopiccategoryOrErr() (*TopicCategory, error) {
+func (e TopicEdges) PlatformOrErr() (*Platform, error) {
 	if e.loadedTypes[0] {
-		if e.Topiccategory == nil {
-			// The edge topiccategory was loaded in eager-loading,
+		if e.Platform == nil {
+			// The edge platform was loaded in eager-loading,
 			// but was not found.
-			return nil, &NotFoundError{label: topiccategory.Label}
+			return nil, &NotFoundError{label: platform.Label}
 		}
-		return e.Topiccategory, nil
+		return e.Platform, nil
 	}
-	return nil, &NotLoadedError{edge: "topiccategory"}
+	return nil, &NotLoadedError{edge: "platform"}
 }
 
-// ProjectsOrErr returns the Projects value or an error if the edge
+// ReposOrErr returns the Repos value or an error if the edge
 // was not loaded in eager-loading.
-func (e TopicEdges) ProjectsOrErr() ([]*Project, error) {
+func (e TopicEdges) ReposOrErr() ([]*Repo, error) {
 	if e.loadedTypes[1] {
-		return e.Projects, nil
+		return e.Repos, nil
 	}
-	return nil, &NotLoadedError{edge: "projects"}
+	return nil, &NotLoadedError{edge: "repos"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -66,9 +72,9 @@ func (*Topic) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case topic.FieldID, topic.FieldTopicCategoryID:
+		case topic.FieldID, topic.FieldPlatformID:
 			values[i] = new(sql.NullInt64)
-		case topic.FieldName, topic.FieldDescription:
+		case topic.FieldName, topic.FieldSubName, topic.FieldDescription, topic.FieldURL, topic.FieldGithubURL:
 			values[i] = new(sql.NullString)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Topic", columns[i])
@@ -97,31 +103,49 @@ func (t *Topic) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				t.Name = value.String
 			}
+		case topic.FieldSubName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field sub_name", values[i])
+			} else if value.Valid {
+				t.SubName = value.String
+			}
 		case topic.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				t.Description = value.String
 			}
-		case topic.FieldTopicCategoryID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field topic_category_id", values[i])
+		case topic.FieldURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				t.TopicCategoryID = int(value.Int64)
+				t.URL = value.String
+			}
+		case topic.FieldGithubURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field github_url", values[i])
+			} else if value.Valid {
+				t.GithubURL = value.String
+			}
+		case topic.FieldPlatformID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field platform_id", values[i])
+			} else if value.Valid {
+				t.PlatformID = int(value.Int64)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryTopiccategory queries the "topiccategory" edge of the Topic entity.
-func (t *Topic) QueryTopiccategory() *TopicCategoryQuery {
-	return (&TopicClient{config: t.config}).QueryTopiccategory(t)
+// QueryPlatform queries the "platform" edge of the Topic entity.
+func (t *Topic) QueryPlatform() *PlatformQuery {
+	return (&TopicClient{config: t.config}).QueryPlatform(t)
 }
 
-// QueryProjects queries the "projects" edge of the Topic entity.
-func (t *Topic) QueryProjects() *ProjectQuery {
-	return (&TopicClient{config: t.config}).QueryProjects(t)
+// QueryRepos queries the "repos" edge of the Topic entity.
+func (t *Topic) QueryRepos() *RepoQuery {
+	return (&TopicClient{config: t.config}).QueryRepos(t)
 }
 
 // Update returns a builder for updating this Topic.
@@ -149,10 +173,16 @@ func (t *Topic) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", t.ID))
 	builder.WriteString(", name=")
 	builder.WriteString(t.Name)
+	builder.WriteString(", sub_name=")
+	builder.WriteString(t.SubName)
 	builder.WriteString(", description=")
 	builder.WriteString(t.Description)
-	builder.WriteString(", topic_category_id=")
-	builder.WriteString(fmt.Sprintf("%v", t.TopicCategoryID))
+	builder.WriteString(", url=")
+	builder.WriteString(t.URL)
+	builder.WriteString(", github_url=")
+	builder.WriteString(t.GithubURL)
+	builder.WriteString(", platform_id=")
+	builder.WriteString(fmt.Sprintf("%v", t.PlatformID))
 	builder.WriteByte(')')
 	return builder.String()
 }

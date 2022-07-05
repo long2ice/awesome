@@ -24,7 +24,7 @@ func init() {
 	db.SetConnMaxIdleTime(time.Hour)
 	Client = ent.NewClient(ent.Driver(drv))
 	if err != nil {
-		log.Fatalf("Connect to database error: %v", err)
+		log.Fatalf("connect to database error: %v", err)
 	}
 	err = Client.Schema.Create(
 		context.Background(),
@@ -32,6 +32,6 @@ func init() {
 		migrate.WithDropColumn(true),
 	)
 	if err != nil {
-		log.Fatalf("Failed creating schema resources: %v", err)
+		log.Fatalf("failed creating schema resources: %v", err)
 	}
 }

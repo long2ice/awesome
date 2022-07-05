@@ -9,9 +9,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/long2ice/awesome/ent/project"
+	"github.com/long2ice/awesome/ent/platform"
+	"github.com/long2ice/awesome/ent/repo"
 	"github.com/long2ice/awesome/ent/topic"
-	"github.com/long2ice/awesome/ent/topiccategory"
 )
 
 // TopicCreate is the builder for creating a Topic entity.
@@ -27,42 +27,54 @@ func (tc *TopicCreate) SetName(s string) *TopicCreate {
 	return tc
 }
 
+// SetSubName sets the "sub_name" field.
+func (tc *TopicCreate) SetSubName(s string) *TopicCreate {
+	tc.mutation.SetSubName(s)
+	return tc
+}
+
 // SetDescription sets the "description" field.
 func (tc *TopicCreate) SetDescription(s string) *TopicCreate {
 	tc.mutation.SetDescription(s)
 	return tc
 }
 
-// SetTopicCategoryID sets the "topic_category_id" field.
-func (tc *TopicCreate) SetTopicCategoryID(i int) *TopicCreate {
-	tc.mutation.SetTopicCategoryID(i)
+// SetURL sets the "url" field.
+func (tc *TopicCreate) SetURL(s string) *TopicCreate {
+	tc.mutation.SetURL(s)
 	return tc
 }
 
-// SetTopiccategoryID sets the "topiccategory" edge to the TopicCategory entity by ID.
-func (tc *TopicCreate) SetTopiccategoryID(id int) *TopicCreate {
-	tc.mutation.SetTopiccategoryID(id)
+// SetGithubURL sets the "github_url" field.
+func (tc *TopicCreate) SetGithubURL(s string) *TopicCreate {
+	tc.mutation.SetGithubURL(s)
 	return tc
 }
 
-// SetTopiccategory sets the "topiccategory" edge to the TopicCategory entity.
-func (tc *TopicCreate) SetTopiccategory(t *TopicCategory) *TopicCreate {
-	return tc.SetTopiccategoryID(t.ID)
-}
-
-// AddProjectIDs adds the "projects" edge to the Project entity by IDs.
-func (tc *TopicCreate) AddProjectIDs(ids ...int) *TopicCreate {
-	tc.mutation.AddProjectIDs(ids...)
+// SetPlatformID sets the "platform_id" field.
+func (tc *TopicCreate) SetPlatformID(i int) *TopicCreate {
+	tc.mutation.SetPlatformID(i)
 	return tc
 }
 
-// AddProjects adds the "projects" edges to the Project entity.
-func (tc *TopicCreate) AddProjects(p ...*Project) *TopicCreate {
-	ids := make([]int, len(p))
-	for i := range p {
-		ids[i] = p[i].ID
+// SetPlatform sets the "platform" edge to the Platform entity.
+func (tc *TopicCreate) SetPlatform(p *Platform) *TopicCreate {
+	return tc.SetPlatformID(p.ID)
+}
+
+// AddRepoIDs adds the "repos" edge to the Repo entity by IDs.
+func (tc *TopicCreate) AddRepoIDs(ids ...int) *TopicCreate {
+	tc.mutation.AddRepoIDs(ids...)
+	return tc
+}
+
+// AddRepos adds the "repos" edges to the Repo entity.
+func (tc *TopicCreate) AddRepos(r ...*Repo) *TopicCreate {
+	ids := make([]int, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
 	}
-	return tc.AddProjectIDs(ids...)
+	return tc.AddRepoIDs(ids...)
 }
 
 // Mutation returns the TopicMutation object of the builder.
@@ -138,14 +150,23 @@ func (tc *TopicCreate) check() error {
 	if _, ok := tc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Topic.name"`)}
 	}
+	if _, ok := tc.mutation.SubName(); !ok {
+		return &ValidationError{Name: "sub_name", err: errors.New(`ent: missing required field "Topic.sub_name"`)}
+	}
 	if _, ok := tc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Topic.description"`)}
 	}
-	if _, ok := tc.mutation.TopicCategoryID(); !ok {
-		return &ValidationError{Name: "topic_category_id", err: errors.New(`ent: missing required field "Topic.topic_category_id"`)}
+	if _, ok := tc.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Topic.url"`)}
 	}
-	if _, ok := tc.mutation.TopiccategoryID(); !ok {
-		return &ValidationError{Name: "topiccategory", err: errors.New(`ent: missing required edge "Topic.topiccategory"`)}
+	if _, ok := tc.mutation.GithubURL(); !ok {
+		return &ValidationError{Name: "github_url", err: errors.New(`ent: missing required field "Topic.github_url"`)}
+	}
+	if _, ok := tc.mutation.PlatformID(); !ok {
+		return &ValidationError{Name: "platform_id", err: errors.New(`ent: missing required field "Topic.platform_id"`)}
+	}
+	if _, ok := tc.mutation.PlatformID(); !ok {
+		return &ValidationError{Name: "platform", err: errors.New(`ent: missing required edge "Topic.platform"`)}
 	}
 	return nil
 }
@@ -182,6 +203,14 @@ func (tc *TopicCreate) createSpec() (*Topic, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
+	if value, ok := tc.mutation.SubName(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldSubName,
+		})
+		_node.SubName = value
+	}
 	if value, ok := tc.mutation.Description(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -190,37 +219,53 @@ func (tc *TopicCreate) createSpec() (*Topic, *sqlgraph.CreateSpec) {
 		})
 		_node.Description = value
 	}
-	if nodes := tc.mutation.TopiccategoryIDs(); len(nodes) > 0 {
+	if value, ok := tc.mutation.URL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldURL,
+		})
+		_node.URL = value
+	}
+	if value, ok := tc.mutation.GithubURL(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: topic.FieldGithubURL,
+		})
+		_node.GithubURL = value
+	}
+	if nodes := tc.mutation.PlatformIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   topic.TopiccategoryTable,
-			Columns: []string{topic.TopiccategoryColumn},
+			Table:   topic.PlatformTable,
+			Columns: []string{topic.PlatformColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: topiccategory.FieldID,
+					Column: platform.FieldID,
 				},
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.TopicCategoryID = nodes[0]
+		_node.PlatformID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := tc.mutation.ProjectsIDs(); len(nodes) > 0 {
+	if nodes := tc.mutation.ReposIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   topic.ProjectsTable,
-			Columns: []string{topic.ProjectsColumn},
+			Table:   topic.ReposTable,
+			Columns: []string{topic.ReposColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
-					Column: project.FieldID,
+					Column: repo.FieldID,
 				},
 			},
 		}

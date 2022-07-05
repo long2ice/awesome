@@ -6,11 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Project is the predicate function for project builders.
-type Project func(*sql.Selector)
+// Platform is the predicate function for platform builders.
+type Platform func(*sql.Selector)
+
+// Repo is the predicate function for repo builders.
+type Repo func(*sql.Selector)
 
 // Topic is the predicate function for topic builders.
 type Topic func(*sql.Selector)
-
-// TopicCategory is the predicate function for topiccategory builders.
-type TopicCategory func(*sql.Selector)

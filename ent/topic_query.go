@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/predicate"
-	"github.com/long2ice/awesome/ent/project"
+	"github.com/long2ice/awesome/ent/repo"
 	"github.com/long2ice/awesome/ent/topic"
-	"github.com/long2ice/awesome/ent/topiccategory"
 )
 
 // TopicQuery is the builder for querying Topic entities.
@@ -28,8 +28,8 @@ type TopicQuery struct {
 	fields     []string
 	predicates []predicate.Topic
 	// eager-loading edges.
-	withTopiccategory *TopicCategoryQuery
-	withProjects      *ProjectQuery
+	withPlatform *PlatformQuery
+	withRepos    *RepoQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -66,9 +66,9 @@ func (tq *TopicQuery) Order(o ...OrderFunc) *TopicQuery {
 	return tq
 }
 
-// QueryTopiccategory chains the current query on the "topiccategory" edge.
-func (tq *TopicQuery) QueryTopiccategory() *TopicCategoryQuery {
-	query := &TopicCategoryQuery{config: tq.config}
+// QueryPlatform chains the current query on the "platform" edge.
+func (tq *TopicQuery) QueryPlatform() *PlatformQuery {
+	query := &PlatformQuery{config: tq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -79,8 +79,8 @@ func (tq *TopicQuery) QueryTopiccategory() *TopicCategoryQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(topic.Table, topic.FieldID, selector),
-			sqlgraph.To(topiccategory.Table, topiccategory.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, topic.TopiccategoryTable, topic.TopiccategoryColumn),
+			sqlgraph.To(platform.Table, platform.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, topic.PlatformTable, topic.PlatformColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -88,9 +88,9 @@ func (tq *TopicQuery) QueryTopiccategory() *TopicCategoryQuery {
 	return query
 }
 
-// QueryProjects chains the current query on the "projects" edge.
-func (tq *TopicQuery) QueryProjects() *ProjectQuery {
-	query := &ProjectQuery{config: tq.config}
+// QueryRepos chains the current query on the "repos" edge.
+func (tq *TopicQuery) QueryRepos() *RepoQuery {
+	query := &RepoQuery{config: tq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -101,8 +101,8 @@ func (tq *TopicQuery) QueryProjects() *ProjectQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(topic.Table, topic.FieldID, selector),
-			sqlgraph.To(project.Table, project.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, topic.ProjectsTable, topic.ProjectsColumn),
+			sqlgraph.To(repo.Table, repo.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, topic.ReposTable, topic.ReposColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -286,13 +286,13 @@ func (tq *TopicQuery) Clone() *TopicQuery {
 		return nil
 	}
 	return &TopicQuery{
-		config:            tq.config,
-		limit:             tq.limit,
-		offset:            tq.offset,
-		order:             append([]OrderFunc{}, tq.order...),
-		predicates:        append([]predicate.Topic{}, tq.predicates...),
-		withTopiccategory: tq.withTopiccategory.Clone(),
-		withProjects:      tq.withProjects.Clone(),
+		config:       tq.config,
+		limit:        tq.limit,
+		offset:       tq.offset,
+		order:        append([]OrderFunc{}, tq.order...),
+		predicates:   append([]predicate.Topic{}, tq.predicates...),
+		withPlatform: tq.withPlatform.Clone(),
+		withRepos:    tq.withRepos.Clone(),
 		// clone intermediate query.
 		sql:    tq.sql.Clone(),
 		path:   tq.path,
@@ -300,25 +300,25 @@ func (tq *TopicQuery) Clone() *TopicQuery {
 	}
 }
 
-// WithTopiccategory tells the query-builder to eager-load the nodes that are connected to
-// the "topiccategory" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TopicQuery) WithTopiccategory(opts ...func(*TopicCategoryQuery)) *TopicQuery {
-	query := &TopicCategoryQuery{config: tq.config}
+// WithPlatform tells the query-builder to eager-load the nodes that are connected to
+// the "platform" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TopicQuery) WithPlatform(opts ...func(*PlatformQuery)) *TopicQuery {
+	query := &PlatformQuery{config: tq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withTopiccategory = query
+	tq.withPlatform = query
 	return tq
 }
 
-// WithProjects tells the query-builder to eager-load the nodes that are connected to
-// the "projects" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TopicQuery) WithProjects(opts ...func(*ProjectQuery)) *TopicQuery {
-	query := &ProjectQuery{config: tq.config}
+// WithRepos tells the query-builder to eager-load the nodes that are connected to
+// the "repos" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TopicQuery) WithRepos(opts ...func(*RepoQuery)) *TopicQuery {
+	query := &RepoQuery{config: tq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withProjects = query
+	tq.withRepos = query
 	return tq
 }
 
@@ -388,8 +388,8 @@ func (tq *TopicQuery) sqlAll(ctx context.Context) ([]*Topic, error) {
 		nodes       = []*Topic{}
 		_spec       = tq.querySpec()
 		loadedTypes = [2]bool{
-			tq.withTopiccategory != nil,
-			tq.withProjects != nil,
+			tq.withPlatform != nil,
+			tq.withRepos != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -412,17 +412,17 @@ func (tq *TopicQuery) sqlAll(ctx context.Context) ([]*Topic, error) {
 		return nodes, nil
 	}
 
-	if query := tq.withTopiccategory; query != nil {
+	if query := tq.withPlatform; query != nil {
 		ids := make([]int, 0, len(nodes))
 		nodeids := make(map[int][]*Topic)
 		for i := range nodes {
-			fk := nodes[i].TopicCategoryID
+			fk := nodes[i].PlatformID
 			if _, ok := nodeids[fk]; !ok {
 				ids = append(ids, fk)
 			}
 			nodeids[fk] = append(nodeids[fk], nodes[i])
 		}
-		query.Where(topiccategory.IDIn(ids...))
+		query.Where(platform.IDIn(ids...))
 		neighbors, err := query.All(ctx)
 		if err != nil {
 			return nil, err
@@ -430,24 +430,24 @@ func (tq *TopicQuery) sqlAll(ctx context.Context) ([]*Topic, error) {
 		for _, n := range neighbors {
 			nodes, ok := nodeids[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected foreign-key "topic_category_id" returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected foreign-key "platform_id" returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Topiccategory = n
+				nodes[i].Edges.Platform = n
 			}
 		}
 	}
 
-	if query := tq.withProjects; query != nil {
+	if query := tq.withRepos; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
 		nodeids := make(map[int]*Topic)
 		for i := range nodes {
 			fks = append(fks, nodes[i].ID)
 			nodeids[nodes[i].ID] = nodes[i]
-			nodes[i].Edges.Projects = []*Project{}
+			nodes[i].Edges.Repos = []*Repo{}
 		}
-		query.Where(predicate.Project(func(s *sql.Selector) {
-			s.Where(sql.InValues(topic.ProjectsColumn, fks...))
+		query.Where(predicate.Repo(func(s *sql.Selector) {
+			s.Where(sql.InValues(topic.ReposColumn, fks...))
 		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
@@ -459,7 +459,7 @@ func (tq *TopicQuery) sqlAll(ctx context.Context) ([]*Topic, error) {
 			if !ok {
 				return nil, fmt.Errorf(`unexpected foreign-key "topic_id" returned %v for node %v`, fk, n.ID)
 			}
-			node.Edges.Projects = append(node.Edges.Projects, n)
+			node.Edges.Repos = append(node.Edges.Repos, n)
 		}
 	}
 

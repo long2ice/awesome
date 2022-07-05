@@ -1,6 +1,5 @@
 server:
-  host: 0.0.0.0
-  port: 3000
+  listen: 0.0.0.0:8000
   logTimezone: Asia/Shanghai
   logTimeFormat: '2006-01-02 15:04:05.000000'
 database:
@@ -8,3 +7,9 @@ database:
 meilisearch:
   server: http://192.168.123.205:7700
   master_key:
+redis:
+  addr: 127.0.0.1:6379
+  password:
+  db: 3
+github:
+  token: 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
