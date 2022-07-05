@@ -6,7 +6,9 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/long2ice/awesome/db"
 	"github.com/long2ice/awesome/ent/repo"
+	"github.com/long2ice/awesome/meili"
 	"github.com/long2ice/awesome/schema"
+	"github.com/meilisearch/meilisearch-go"
 	log "github.com/sirupsen/logrus"
 	"regexp"
 	"strconv"
@@ -45,6 +47,7 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return err
 	}
+	var documents []map[string]interface{}
 	for _, v := range repos {
 		for _, repoInfo := range v {
 			r := db.Client.Repo.Query().Where(repo.URL(repoInfo.RepoURL)).FirstX(ctx)
@@ -89,7 +92,21 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 				}
 				db.Client.Repo.UpdateOne(r)
 			}
+			documents = append(documents, map[string]interface{}{
+				"id":          r.ID,
+				"name":        r.Name,
+				"description": r.Description,
+				"sub_topic":   r.SubTopic,
+			})
 		}
+	}
+	if len(documents) > 0 {
+		var task *meilisearch.Task
+		task, err = meili.RepoIndex.AddDocuments(documents)
+		if err != nil {
+			return err
+		}
+		log.Infof("success add %d repos to meilisearch, taskID: %d", len(documents), task.UID)
 	}
 	return err
 }

@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	Client *meilisearch.Client
-	Index  *meilisearch.Index
+	Client     *meilisearch.Client
+	TopicIndex *meilisearch.Index
+	RepoIndex  *meilisearch.Index
 )
 
 func init() {
@@ -15,5 +16,6 @@ func init() {
 		Host:   conf.MeiliConfig.Server,
 		APIKey: conf.MeiliConfig.MasterKey,
 	})
-	Index = Client.Index("awesome")
+	TopicIndex = Client.Index("awesome-topic")
+	RepoIndex = Client.Index("awesome-repo")
 }

@@ -9,7 +9,9 @@ import (
 	"github.com/long2ice/awesome/db"
 	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/topic"
+	"github.com/long2ice/awesome/meili"
 	"github.com/long2ice/awesome/schema"
+	"github.com/meilisearch/meilisearch-go"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
@@ -18,7 +20,7 @@ const (
 	TypeGetTopicsPeriodic = "GetTopicsPeriodic"
 )
 
-func GetTopicsPeriodic(ctx context.Context, task *asynq.Task) error {
+func GetTopicsPeriodic(ctx context.Context, _ *asynq.Task) error {
 	url := "https://awesome.digitalbunker.dev"
 	resp, err := Resty.R().Get(url)
 	if err != nil {
@@ -63,6 +65,7 @@ func GetTopicsPeriodic(ctx context.Context, task *asynq.Task) error {
 			Description: description,
 		})
 	})
+	var documents []map[string]interface{}
 	for k, v := range topics {
 		p := db.Client.Platform.Query().Where(platform.Name(k)).FirstX(ctx)
 		if p == nil {
@@ -85,7 +88,21 @@ func GetTopicsPeriodic(ctx context.Context, task *asynq.Task) error {
 				return err
 			}
 			log.Infof("enqueued task: id=%s queue=%s topicID=%d", info.ID, info.Queue, tp.ID)
+			documents = append(documents, map[string]interface{}{
+				"id":          tp.ID,
+				"name":        tp.Name,
+				"sub_name":    tp.SubName,
+				"description": tp.Description,
+			})
 		}
+	}
+	if len(documents) > 0 {
+		var t *meilisearch.Task
+		t, err = meili.TopicIndex.AddDocuments(documents)
+		if err != nil {
+			return err
+		}
+		log.Infof("success add %d topics to meilisearch, taskID: %d", len(documents), t.UID)
 	}
 	return err
 }
