@@ -1,3 +1,3 @@
 # awesome
 
-Search for awesome github project
+Search for awesome GitHub project

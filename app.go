@@ -27,9 +27,7 @@ func initRouters(app *fibers.App) {
 	)
 	topic := app.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
-
-	repo := app.Group("/repo", fibers.Tags("Repo"))
-	repo.Get("", repoSearch)
+	topic.Get("/:topic_id/repo", repoSearch)
 
 	app.Get("/platform", platform)
 	h := asynqmon.New(asynqmon.Options{

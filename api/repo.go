@@ -11,10 +11,10 @@ import (
 )
 
 type Repo struct {
-	Keyword string `query:"keyword"  validate:"required" example:"mysql"`
-	Limit   int64  `query:"limit"    validate:"required" example:"20"`
-	Offset  int64  `query:"offset"                       example:"0"`
-	TopicID int    `query:"topic_id"`
+	Keyword string `query:"keyword" example:"mysql"`
+	Limit   int64  `query:"limit"   example:"20"    validate:"required"`
+	Offset  int64  `query:"offset"  example:"0"`
+	TopicID int    `                                                    uri:"topic_id"`
 }
 
 func (p *Repo) Handler(c *fiber.Ctx) error {
