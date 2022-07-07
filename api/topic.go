@@ -18,8 +18,6 @@ import (
 
 type TopicSearch struct {
 	Keyword    string `query:"keyword"     example:"mysql"`
-	Limit      int64  `query:"limit"       example:"20"    validate:"required,max=100,min=10"`
-	Offset     int64  `query:"offset"      example:"0"`
 	PlatformID int    `query:"platform_id"`
 }
 
@@ -28,8 +26,6 @@ func (t *TopicSearch) Handler(c *fiber.Ctx) error {
 	var total int64
 	if t.Keyword != "" {
 		searchReq := &meilisearch.SearchRequest{
-			Offset:               t.Offset,
-			Limit:                t.Limit,
 			AttributesToRetrieve: []string{"id"},
 		}
 		if t.PlatformID != 0 {
@@ -62,7 +58,6 @@ func (t *TopicSearch) Handler(c *fiber.Ctx) error {
 				topic.FieldSubName,
 				topic.FieldDescription,
 				topic.FieldGithubURL).Where(where...).
-			Limit(int(t.Limit)).Offset(int(t.Offset)).
 			AllX(c.Context())
 	}
 

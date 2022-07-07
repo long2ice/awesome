@@ -31,9 +31,10 @@ func (p *Repo) Handler(c *fiber.Ctx) error {
 	f := fmt.Sprintf("topic_id = %d", p.TopicID)
 	filters = append(filters, f)
 	repoFilters = append(repoFilters, f)
-	repoFilters = append(repoFilters, "type = 'repo'")
 	if p.Type != "" {
 		filters = append(filters, fmt.Sprintf("type = '%s'", p.Type))
+	} else {
+		repoFilters = append(repoFilters, "type = 'repo'")
 	}
 	if p.SubTopic != "" {
 		f = fmt.Sprintf("sub_topic = '%s'", p.SubTopic)
@@ -67,10 +68,25 @@ func (p *Repo) Handler(c *fiber.Ctx) error {
 			repo.FieldUpdatedAt).
 		Where(repo.IDIn(ids...)).
 		AllX(c.Context())
+	var repoTotal, resourceTotal, total int64
+
+	if p.Type == "repo" {
+		total = repoSearchRes.NbHits
+		repoTotal = searchRes.NbHits
+		resourceTotal = total - repoTotal
+	} else if p.Type == "" {
+		total = searchRes.NbHits
+		repoTotal = repoSearchRes.NbHits
+		resourceTotal = total - repoTotal
+	} else {
+		total = repoSearchRes.NbHits
+		resourceTotal = searchRes.NbHits
+		repoTotal = total - resourceTotal
+	}
 	return c.JSON(fiber.Map{
 		"data":           repos,
-		"total":          searchRes.NbHits,
-		"repo_total":     repoSearchRes.NbHits,
-		"resource_total": searchRes.NbHits - repoSearchRes.NbHits,
+		"total":          total,
+		"repo_total":     repoTotal,
+		"resource_total": resourceTotal,
 	})
 }
