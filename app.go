@@ -19,7 +19,9 @@ func initRouters(app *fibers.App) {
 	var (
 		topicSearch = router.New(&api.TopicSearch{}, router.Summary("Search topic"))
 		repoSearch  = router.New(&api.Repo{}, router.Summary("Search repo"))
-		platform    = router.New(
+		subtopics   = router.New(&api.RepoSubTopic{}, router.Summary("Get repo subtopics"))
+
+		platform = router.New(
 			&api.Platform{},
 			router.Summary("Platform"),
 			router.Tags("Platform"),
@@ -28,6 +30,7 @@ func initRouters(app *fibers.App) {
 	topic := app.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
 	topic.Get("/:topic_id/repo", repoSearch)
+	topic.Get("/:topic_id/subtopics", subtopics)
 
 	app.Get("/platform", platform)
 	h := asynqmon.New(asynqmon.Options{

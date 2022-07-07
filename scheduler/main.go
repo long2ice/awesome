@@ -20,7 +20,7 @@ func main() {
 			Location: loc,
 		},
 	)
-	entryID, err := scheduler.Register("0 0 * * *", asynq.NewTask(tasks.TypeGetTopicPeriodic, nil))
+	entryID, err := scheduler.Register("0 1 * * *", asynq.NewTask(tasks.TypeGetTopicPeriodic, nil))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,7 +30,7 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeSyncTopicPeriodic)
-	entryID, err = scheduler.Register("0 4 * * *", asynq.NewTask(tasks.TypeSyncRepoPeriodic, nil))
+	entryID, err = scheduler.Register("0 3 * * *", asynq.NewTask(tasks.TypeSyncRepoPeriodic, nil))
 	if err != nil {
 		log.Fatal(err)
 	}

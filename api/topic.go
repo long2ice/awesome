@@ -3,6 +3,8 @@ package api
 import (
 	"fmt"
 
+	"github.com/long2ice/awesome/ent/repo"
+
 	"github.com/long2ice/awesome/ent/predicate"
 
 	"github.com/long2ice/awesome/ent"
@@ -68,4 +70,21 @@ func (t *TopicSearch) Handler(c *fiber.Ctx) error {
 		"data":  topics,
 		"total": total,
 	})
+}
+
+type RepoSubTopic struct {
+	TopicID int    `uri:"topic_id" validate:"required" example:"1"`
+	Type    string `                                   example:"repo" query:"type"`
+}
+
+func (r *RepoSubTopic) Handler(c *fiber.Ctx) error {
+	where := []predicate.Repo{repo.TopicID(r.TopicID)}
+	if r.Type != "" {
+		where = append(where, repo.TypeEQ(repo.Type(r.Type)))
+	}
+	topics := db.Client.Repo.Query().
+		Where(where...).Unique(true).
+		Select(repo.FieldSubTopic).
+		StringsX(c.Context())
+	return c.JSON(topics)
 }

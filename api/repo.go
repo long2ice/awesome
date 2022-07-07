@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/long2ice/awesome/db"
@@ -11,10 +12,12 @@ import (
 )
 
 type Repo struct {
-	Keyword string `query:"keyword" example:"mysql"`
-	Limit   int64  `query:"limit"   example:"20"    validate:"required"`
-	Offset  int64  `query:"offset"  example:"0"`
-	TopicID int    `                                                    uri:"topic_id"`
+	Keyword  string `query:"keyword"  example:"mysql"`
+	Limit    int64  `query:"limit"    example:"20"    validate:"required"`
+	Offset   int64  `query:"offset"   example:"0"`
+	TopicID  int    `                                 validate:"required" uri:"topic_id"`
+	Type     string `query:"type"     example:"repo"`
+	SubTopic string `query:"subtopic"`
 }
 
 func (p *Repo) Handler(c *fiber.Ctx) error {
@@ -23,13 +26,32 @@ func (p *Repo) Handler(c *fiber.Ctx) error {
 		Limit:                p.Limit,
 		AttributesToRetrieve: []string{"id"},
 	}
-	if p.TopicID != 0 {
-		searchReq.Filter = fmt.Sprintf("topic_id = %d", p.TopicID)
+	var filters []string
+	var repoFilters []string
+	f := fmt.Sprintf("topic_id = %d", p.TopicID)
+	filters = append(filters, f)
+	repoFilters = append(repoFilters, f)
+	repoFilters = append(repoFilters, "type = 'repo'")
+	if p.Type != "" {
+		filters = append(filters, fmt.Sprintf("type = '%s'", p.Type))
 	}
+	if p.SubTopic != "" {
+		f = fmt.Sprintf("sub_topic = '%s'", p.SubTopic)
+		filters = append(filters, f)
+		repoFilters = append(repoFilters, f)
+	}
+	searchReq.Filter = strings.Join(filters, " AND ")
 	searchRes, err := meili.RepoIndex.Search(p.Keyword, searchReq)
 	if err != nil {
 		return err
 	}
+	var repoSearchRes *meilisearch.SearchResponse
+	searchReq.Filter = strings.Join(repoFilters, " AND ")
+	repoSearchRes, err = meili.RepoIndex.Search(p.Keyword, searchReq)
+	if err != nil {
+		return err
+	}
+
 	ids := meili.GetIds(searchRes)
 	repos := db.Client.Repo.Query().
 		Select(
@@ -46,7 +68,9 @@ func (p *Repo) Handler(c *fiber.Ctx) error {
 		Where(repo.IDIn(ids...)).
 		AllX(c.Context())
 	return c.JSON(fiber.Map{
-		"data":  repos,
-		"total": searchRes.NbHits,
+		"data":           repos,
+		"total":          searchRes.NbHits,
+		"repo_total":     repoSearchRes.NbHits,
+		"resource_total": searchRes.NbHits - repoSearchRes.NbHits,
 	})
 }

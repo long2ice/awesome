@@ -150,6 +150,7 @@ func SyncRepoPeriodic(ctx context.Context, _ *asynq.Task) error {
 				"description": r.Description,
 				"sub_topic":   r.SubTopic,
 				"topic_id":    r.TopicID,
+				"type":        r.Type,
 			})
 		}
 		if len(documents) > 0 {

@@ -23,7 +23,7 @@ func init() {
 		log.Panic(err)
 	}
 	RepoIndex = Client.Index("awesome-repo")
-	_, err = RepoIndex.UpdateFilterableAttributes(&[]string{"topic_id"})
+	_, err = RepoIndex.UpdateFilterableAttributes(&[]string{"topic_id", "type", "sub_topic"})
 	if err != nil {
 		log.Panic(err)
 	}
