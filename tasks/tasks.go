@@ -32,7 +32,6 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 			WithField("topicID", topicID).
 			Panicf("get topic content error")
 	}
-	//repos := make(map[string][]schema.Repo)
 	compile, err := regexp.Compile(`let originalResponse = (\{.+\}\]\})`)
 	if err != nil {
 		return err
@@ -55,7 +54,7 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 			var name string
 			if repoInfo.Type == "resource" {
 				desc = repoInfo.ResourceDescription
-				name = repoInfo.Title
+				name = repoInfo.GetTitle()
 			} else {
 				desc = repoInfo.Description
 				name = repoInfo.FullName

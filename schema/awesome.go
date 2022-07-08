@@ -46,6 +46,12 @@ type Repo struct {
 	ResourceDescription string `json:"resource_description"`
 }
 
+func (r Repo) GetTitle() string {
+	if r.Title == "FAILURE" {
+		return r.RepoURL
+	}
+	return r.Title
+}
 func (r Repo) ForkCount() int {
 	count, _ := strconv.Atoi(r.Forks)
 	return count
