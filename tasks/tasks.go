@@ -49,7 +49,6 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 	}
 	for _, v := range repos {
 		for _, repoInfo := range v {
-			r := db.Client.Repo.Query().Where(repo.URL(repoInfo.RepoURL)).FirstX(ctx)
 			var desc string
 			var name string
 			if repoInfo.Type == "resource" {
@@ -59,38 +58,20 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 				desc = repoInfo.Description
 				name = repoInfo.FullName
 			}
-			if r == nil {
-				repoCreate := db.Client.Repo.Create().
-					SetName(name).
-					SetForkCount(repoInfo.ForkCount()).
-					SetStarCount(repoInfo.StarCount()).
-					SetWatchCount(repoInfo.WatchCount()).
-					SetSubTopic(repoInfo.Category).
-					SetURL(repoInfo.RepoURL).
-					SetType(repo.Type(repoInfo.Type)).
-					SetDescription(desc).
-					SetTopics(topic)
-				if repoInfo.UpdatedAt.Time != nil {
-					repoCreate.SetUpdatedAt(*repoInfo.UpdatedAt.Time)
-				}
-				r, err = repoCreate.Save(ctx)
-				if err != nil {
-					return err
-				}
-			} else {
-				r.Name = name
-				r.ForkCount = repoInfo.ForkCount()
-				r.StarCount = repoInfo.StarCount()
-				r.WatchCount = repoInfo.WatchCount()
-				r.SubTopic = repoInfo.Category
-				r.Type = repo.Type(repoInfo.Type)
-				r.Description = desc
-				r.TopicID = topicID
-				if repoInfo.UpdatedAt.Time != nil {
-					r.UpdatedAt = *repoInfo.UpdatedAt.Time
-				}
-				db.Client.Repo.UpdateOne(r)
+			repoCreate := db.Client.Repo.Create().
+				SetName(name).
+				SetForkCount(repoInfo.ForkCount()).
+				SetStarCount(repoInfo.StarCount()).
+				SetWatchCount(repoInfo.WatchCount()).
+				SetSubTopic(repoInfo.Category).
+				SetURL(repoInfo.RepoURL).
+				SetType(repo.Type(repoInfo.Type)).
+				SetDescription(desc).
+				SetTopicID(topic.ID).OnConflict().UpdateNewValues()
+			if repoInfo.UpdatedAt.Time != nil {
+				repoCreate.SetUpdatedAt(*repoInfo.UpdatedAt.Time)
 			}
+			repoCreate.ExecX(ctx)
 		}
 	}
 	return err

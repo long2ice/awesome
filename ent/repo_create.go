@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/long2ice/awesome/ent/repo"
@@ -19,6 +20,7 @@ type RepoCreate struct {
 	config
 	mutation *RepoMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -247,6 +249,7 @@ func (rc *RepoCreate) createSpec() (*Repo, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	_spec.OnConflict = rc.conflict
 	if value, ok := rc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -342,10 +345,488 @@ func (rc *RepoCreate) createSpec() (*Repo, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Repo.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RepoUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (rc *RepoCreate) OnConflict(opts ...sql.ConflictOption) *RepoUpsertOne {
+	rc.conflict = opts
+	return &RepoUpsertOne{
+		create: rc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Repo.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (rc *RepoCreate) OnConflictColumns(columns ...string) *RepoUpsertOne {
+	rc.conflict = append(rc.conflict, sql.ConflictColumns(columns...))
+	return &RepoUpsertOne{
+		create: rc,
+	}
+}
+
+type (
+	// RepoUpsertOne is the builder for "upsert"-ing
+	//  one Repo node.
+	RepoUpsertOne struct {
+		create *RepoCreate
+	}
+
+	// RepoUpsert is the "OnConflict" setter.
+	RepoUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *RepoUpsert) SetName(v string) *RepoUpsert {
+	u.Set(repo.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateName() *RepoUpsert {
+	u.SetExcluded(repo.FieldName)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *RepoUpsert) SetDescription(v string) *RepoUpsert {
+	u.Set(repo.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateDescription() *RepoUpsert {
+	u.SetExcluded(repo.FieldDescription)
+	return u
+}
+
+// SetURL sets the "url" field.
+func (u *RepoUpsert) SetURL(v string) *RepoUpsert {
+	u.Set(repo.FieldURL, v)
+	return u
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateURL() *RepoUpsert {
+	u.SetExcluded(repo.FieldURL)
+	return u
+}
+
+// SetSubTopic sets the "sub_topic" field.
+func (u *RepoUpsert) SetSubTopic(v string) *RepoUpsert {
+	u.Set(repo.FieldSubTopic, v)
+	return u
+}
+
+// UpdateSubTopic sets the "sub_topic" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateSubTopic() *RepoUpsert {
+	u.SetExcluded(repo.FieldSubTopic)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *RepoUpsert) SetType(v repo.Type) *RepoUpsert {
+	u.Set(repo.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateType() *RepoUpsert {
+	u.SetExcluded(repo.FieldType)
+	return u
+}
+
+// SetStarCount sets the "star_count" field.
+func (u *RepoUpsert) SetStarCount(v int) *RepoUpsert {
+	u.Set(repo.FieldStarCount, v)
+	return u
+}
+
+// UpdateStarCount sets the "star_count" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateStarCount() *RepoUpsert {
+	u.SetExcluded(repo.FieldStarCount)
+	return u
+}
+
+// AddStarCount adds v to the "star_count" field.
+func (u *RepoUpsert) AddStarCount(v int) *RepoUpsert {
+	u.Add(repo.FieldStarCount, v)
+	return u
+}
+
+// ClearStarCount clears the value of the "star_count" field.
+func (u *RepoUpsert) ClearStarCount() *RepoUpsert {
+	u.SetNull(repo.FieldStarCount)
+	return u
+}
+
+// SetForkCount sets the "fork_count" field.
+func (u *RepoUpsert) SetForkCount(v int) *RepoUpsert {
+	u.Set(repo.FieldForkCount, v)
+	return u
+}
+
+// UpdateForkCount sets the "fork_count" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateForkCount() *RepoUpsert {
+	u.SetExcluded(repo.FieldForkCount)
+	return u
+}
+
+// AddForkCount adds v to the "fork_count" field.
+func (u *RepoUpsert) AddForkCount(v int) *RepoUpsert {
+	u.Add(repo.FieldForkCount, v)
+	return u
+}
+
+// ClearForkCount clears the value of the "fork_count" field.
+func (u *RepoUpsert) ClearForkCount() *RepoUpsert {
+	u.SetNull(repo.FieldForkCount)
+	return u
+}
+
+// SetWatchCount sets the "watch_count" field.
+func (u *RepoUpsert) SetWatchCount(v int) *RepoUpsert {
+	u.Set(repo.FieldWatchCount, v)
+	return u
+}
+
+// UpdateWatchCount sets the "watch_count" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateWatchCount() *RepoUpsert {
+	u.SetExcluded(repo.FieldWatchCount)
+	return u
+}
+
+// AddWatchCount adds v to the "watch_count" field.
+func (u *RepoUpsert) AddWatchCount(v int) *RepoUpsert {
+	u.Add(repo.FieldWatchCount, v)
+	return u
+}
+
+// ClearWatchCount clears the value of the "watch_count" field.
+func (u *RepoUpsert) ClearWatchCount() *RepoUpsert {
+	u.SetNull(repo.FieldWatchCount)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RepoUpsert) SetUpdatedAt(v time.Time) *RepoUpsert {
+	u.Set(repo.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateUpdatedAt() *RepoUpsert {
+	u.SetExcluded(repo.FieldUpdatedAt)
+	return u
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (u *RepoUpsert) ClearUpdatedAt() *RepoUpsert {
+	u.SetNull(repo.FieldUpdatedAt)
+	return u
+}
+
+// SetTopicID sets the "topic_id" field.
+func (u *RepoUpsert) SetTopicID(v int) *RepoUpsert {
+	u.Set(repo.FieldTopicID, v)
+	return u
+}
+
+// UpdateTopicID sets the "topic_id" field to the value that was provided on create.
+func (u *RepoUpsert) UpdateTopicID() *RepoUpsert {
+	u.SetExcluded(repo.FieldTopicID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Repo.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *RepoUpsertOne) UpdateNewValues() *RepoUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.Repo.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *RepoUpsertOne) Ignore() *RepoUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RepoUpsertOne) DoNothing() *RepoUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RepoCreate.OnConflict
+// documentation for more info.
+func (u *RepoUpsertOne) Update(set func(*RepoUpsert)) *RepoUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RepoUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *RepoUpsertOne) SetName(v string) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateName() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *RepoUpsertOne) SetDescription(v string) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateDescription() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *RepoUpsertOne) SetURL(v string) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateURL() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetSubTopic sets the "sub_topic" field.
+func (u *RepoUpsertOne) SetSubTopic(v string) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetSubTopic(v)
+	})
+}
+
+// UpdateSubTopic sets the "sub_topic" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateSubTopic() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateSubTopic()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *RepoUpsertOne) SetType(v repo.Type) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateType() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetStarCount sets the "star_count" field.
+func (u *RepoUpsertOne) SetStarCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetStarCount(v)
+	})
+}
+
+// AddStarCount adds v to the "star_count" field.
+func (u *RepoUpsertOne) AddStarCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddStarCount(v)
+	})
+}
+
+// UpdateStarCount sets the "star_count" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateStarCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateStarCount()
+	})
+}
+
+// ClearStarCount clears the value of the "star_count" field.
+func (u *RepoUpsertOne) ClearStarCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearStarCount()
+	})
+}
+
+// SetForkCount sets the "fork_count" field.
+func (u *RepoUpsertOne) SetForkCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetForkCount(v)
+	})
+}
+
+// AddForkCount adds v to the "fork_count" field.
+func (u *RepoUpsertOne) AddForkCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddForkCount(v)
+	})
+}
+
+// UpdateForkCount sets the "fork_count" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateForkCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateForkCount()
+	})
+}
+
+// ClearForkCount clears the value of the "fork_count" field.
+func (u *RepoUpsertOne) ClearForkCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearForkCount()
+	})
+}
+
+// SetWatchCount sets the "watch_count" field.
+func (u *RepoUpsertOne) SetWatchCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetWatchCount(v)
+	})
+}
+
+// AddWatchCount adds v to the "watch_count" field.
+func (u *RepoUpsertOne) AddWatchCount(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddWatchCount(v)
+	})
+}
+
+// UpdateWatchCount sets the "watch_count" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateWatchCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateWatchCount()
+	})
+}
+
+// ClearWatchCount clears the value of the "watch_count" field.
+func (u *RepoUpsertOne) ClearWatchCount() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearWatchCount()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RepoUpsertOne) SetUpdatedAt(v time.Time) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateUpdatedAt() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (u *RepoUpsertOne) ClearUpdatedAt() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearUpdatedAt()
+	})
+}
+
+// SetTopicID sets the "topic_id" field.
+func (u *RepoUpsertOne) SetTopicID(v int) *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetTopicID(v)
+	})
+}
+
+// UpdateTopicID sets the "topic_id" field to the value that was provided on create.
+func (u *RepoUpsertOne) UpdateTopicID() *RepoUpsertOne {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateTopicID()
+	})
+}
+
+// Exec executes the query.
+func (u *RepoUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RepoCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RepoUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *RepoUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *RepoUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // RepoCreateBulk is the builder for creating many Repo entities in bulk.
 type RepoCreateBulk struct {
 	config
 	builders []*RepoCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Repo entities in the database.
@@ -371,6 +852,7 @@ func (rcb *RepoCreateBulk) Save(ctx context.Context) ([]*Repo, error) {
 					_, err = mutators[i+1].Mutate(root, rcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = rcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, rcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -421,6 +903,300 @@ func (rcb *RepoCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (rcb *RepoCreateBulk) ExecX(ctx context.Context) {
 	if err := rcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Repo.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.RepoUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (rcb *RepoCreateBulk) OnConflict(opts ...sql.ConflictOption) *RepoUpsertBulk {
+	rcb.conflict = opts
+	return &RepoUpsertBulk{
+		create: rcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Repo.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (rcb *RepoCreateBulk) OnConflictColumns(columns ...string) *RepoUpsertBulk {
+	rcb.conflict = append(rcb.conflict, sql.ConflictColumns(columns...))
+	return &RepoUpsertBulk{
+		create: rcb,
+	}
+}
+
+// RepoUpsertBulk is the builder for "upsert"-ing
+// a bulk of Repo nodes.
+type RepoUpsertBulk struct {
+	create *RepoCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Repo.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *RepoUpsertBulk) UpdateNewValues() *RepoUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Repo.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *RepoUpsertBulk) Ignore() *RepoUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *RepoUpsertBulk) DoNothing() *RepoUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the RepoCreateBulk.OnConflict
+// documentation for more info.
+func (u *RepoUpsertBulk) Update(set func(*RepoUpsert)) *RepoUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&RepoUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *RepoUpsertBulk) SetName(v string) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateName() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *RepoUpsertBulk) SetDescription(v string) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateDescription() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *RepoUpsertBulk) SetURL(v string) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateURL() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetSubTopic sets the "sub_topic" field.
+func (u *RepoUpsertBulk) SetSubTopic(v string) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetSubTopic(v)
+	})
+}
+
+// UpdateSubTopic sets the "sub_topic" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateSubTopic() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateSubTopic()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *RepoUpsertBulk) SetType(v repo.Type) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateType() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetStarCount sets the "star_count" field.
+func (u *RepoUpsertBulk) SetStarCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetStarCount(v)
+	})
+}
+
+// AddStarCount adds v to the "star_count" field.
+func (u *RepoUpsertBulk) AddStarCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddStarCount(v)
+	})
+}
+
+// UpdateStarCount sets the "star_count" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateStarCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateStarCount()
+	})
+}
+
+// ClearStarCount clears the value of the "star_count" field.
+func (u *RepoUpsertBulk) ClearStarCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearStarCount()
+	})
+}
+
+// SetForkCount sets the "fork_count" field.
+func (u *RepoUpsertBulk) SetForkCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetForkCount(v)
+	})
+}
+
+// AddForkCount adds v to the "fork_count" field.
+func (u *RepoUpsertBulk) AddForkCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddForkCount(v)
+	})
+}
+
+// UpdateForkCount sets the "fork_count" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateForkCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateForkCount()
+	})
+}
+
+// ClearForkCount clears the value of the "fork_count" field.
+func (u *RepoUpsertBulk) ClearForkCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearForkCount()
+	})
+}
+
+// SetWatchCount sets the "watch_count" field.
+func (u *RepoUpsertBulk) SetWatchCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetWatchCount(v)
+	})
+}
+
+// AddWatchCount adds v to the "watch_count" field.
+func (u *RepoUpsertBulk) AddWatchCount(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.AddWatchCount(v)
+	})
+}
+
+// UpdateWatchCount sets the "watch_count" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateWatchCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateWatchCount()
+	})
+}
+
+// ClearWatchCount clears the value of the "watch_count" field.
+func (u *RepoUpsertBulk) ClearWatchCount() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearWatchCount()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *RepoUpsertBulk) SetUpdatedAt(v time.Time) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateUpdatedAt() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// ClearUpdatedAt clears the value of the "updated_at" field.
+func (u *RepoUpsertBulk) ClearUpdatedAt() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.ClearUpdatedAt()
+	})
+}
+
+// SetTopicID sets the "topic_id" field.
+func (u *RepoUpsertBulk) SetTopicID(v int) *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.SetTopicID(v)
+	})
+}
+
+// UpdateTopicID sets the "topic_id" field to the value that was provided on create.
+func (u *RepoUpsertBulk) UpdateTopicID() *RepoUpsertBulk {
+	return u.Update(func(s *RepoUpsert) {
+		s.UpdateTopicID()
+	})
+}
+
+// Exec executes the query.
+func (u *RepoUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the RepoCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for RepoCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *RepoUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

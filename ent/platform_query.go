@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -27,6 +28,7 @@ type PlatformQuery struct {
 	predicates []predicate.Platform
 	// eager-loading edges.
 	withTopics *TopicQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -368,6 +370,9 @@ func (pq *PlatformQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pla
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -408,6 +413,9 @@ func (pq *PlatformQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pla
 
 func (pq *PlatformQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	_spec.Node.Columns = pq.fields
 	if len(pq.fields) > 0 {
 		_spec.Unique = pq.unique != nil && *pq.unique
@@ -486,6 +494,9 @@ func (pq *PlatformQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if pq.unique != nil && *pq.unique {
 		selector.Distinct()
 	}
+	for _, m := range pq.modifiers {
+		m(selector)
+	}
 	for _, p := range pq.predicates {
 		p(selector)
 	}
@@ -501,6 +512,38 @@ func (pq *PlatformQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// ForUpdate locks the selected rows against concurrent updates, and prevent them from being
+// updated, deleted or "selected ... for update" by other sessions, until the transaction is
+// either committed or rolled-back.
+func (pq *PlatformQuery) ForUpdate(opts ...sql.LockOption) *PlatformQuery {
+	if pq.driver.Dialect() == dialect.Postgres {
+		pq.Unique(false)
+	}
+	pq.modifiers = append(pq.modifiers, func(s *sql.Selector) {
+		s.ForUpdate(opts...)
+	})
+	return pq
+}
+
+// ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
+// on any rows that are read. Other sessions can read the rows, but cannot modify them
+// until your transaction commits.
+func (pq *PlatformQuery) ForShare(opts ...sql.LockOption) *PlatformQuery {
+	if pq.driver.Dialect() == dialect.Postgres {
+		pq.Unique(false)
+	}
+	pq.modifiers = append(pq.modifiers, func(s *sql.Selector) {
+		s.ForShare(opts...)
+	})
+	return pq
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (pq *PlatformQuery) Modify(modifiers ...func(s *sql.Selector)) *PlatformSelect {
+	pq.modifiers = append(pq.modifiers, modifiers...)
+	return pq.Select()
 }
 
 // PlatformGroupBy is the group-by builder for Platform entities.
@@ -593,4 +636,10 @@ func (ps *PlatformSelect) sqlScan(ctx context.Context, v interface{}) error {
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ps *PlatformSelect) Modify(modifiers ...func(s *sql.Selector)) *PlatformSelect {
+	ps.modifiers = append(ps.modifiers, modifiers...)
+	return ps
 }

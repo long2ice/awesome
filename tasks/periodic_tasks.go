@@ -11,9 +11,7 @@ import (
 	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/db"
 	"github.com/long2ice/awesome/ent"
-	"github.com/long2ice/awesome/ent/platform"
 	"github.com/long2ice/awesome/ent/repo"
-	"github.com/long2ice/awesome/ent/topic"
 	"github.com/long2ice/awesome/meili"
 	"github.com/long2ice/awesome/schema"
 	"github.com/meilisearch/meilisearch-go"
@@ -72,38 +70,24 @@ func GetTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
 		})
 	})
 	for k, v := range topics {
-		p := db.Client.Platform.Query().Where(platform.Name(k)).FirstX(ctx)
-		if p == nil {
-			p = db.Client.Platform.Create().SetName(k).SaveX(ctx)
-		}
+		pid := db.Client.Platform.Create().SetName(k).OnConflict().Ignore().IDX(ctx)
 		for _, t := range v {
-			tp := db.Client.Topic.Query().
-				Where(topic.URL(t.URL), topic.PlatformID(p.ID)).
-				FirstX(ctx)
-			if tp == nil {
-				tp = db.Client.Topic.Create().
-					SetName(t.Name).
-					SetSubName(t.SubName).
-					SetPlatform(p).
-					SetURL(t.URL).
-					SetGithubURL(t.GithubURL).
-					SetDescription(t.Description).
-					SaveX(ctx)
-			} else {
-				tp.SubName = t.SubName
-				tp.GithubURL = t.GithubURL
-				tp.Description = t.Description
-				tp.Name = t.Name
-				db.Client.Topic.UpdateOne(tp)
-			}
+			id := db.Client.Topic.Create().
+				SetName(t.Name).
+				SetSubName(t.SubName).
+				SetPlatformID(pid).
+				SetURL(t.URL).
+				SetGithubURL(t.GithubURL).
+				SetDescription(t.Description).OnConflict().UpdateNewValues().
+				IDX(ctx)
 			var info *asynq.TaskInfo
 			info, err = Client.Enqueue(
-				asynq.NewTask(TypeGetRepos, []byte(fmt.Sprintf("%d", tp.ID))),
+				asynq.NewTask(TypeGetRepos, []byte(fmt.Sprintf("%d", id))),
 			)
 			if err != nil {
 				return err
 			}
-			log.Infof("enqueued task: id=%s queue=%s topicID=%d", info.ID, info.Queue, tp.ID)
+			log.Infof("enqueued task: id=%s queue=%s topicID=%d", info.ID, info.Queue, id)
 		}
 	}
 

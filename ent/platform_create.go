@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/long2ice/awesome/ent/platform"
@@ -18,6 +19,7 @@ type PlatformCreate struct {
 	config
 	mutation *PlatformMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -155,6 +157,7 @@ func (pc *PlatformCreate) createSpec() (*Platform, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	_spec.OnConflict = pc.conflict
 	if value, ok := pc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -193,10 +196,202 @@ func (pc *PlatformCreate) createSpec() (*Platform, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Platform.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PlatformUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (pc *PlatformCreate) OnConflict(opts ...sql.ConflictOption) *PlatformUpsertOne {
+	pc.conflict = opts
+	return &PlatformUpsertOne{
+		create: pc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Platform.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (pc *PlatformCreate) OnConflictColumns(columns ...string) *PlatformUpsertOne {
+	pc.conflict = append(pc.conflict, sql.ConflictColumns(columns...))
+	return &PlatformUpsertOne{
+		create: pc,
+	}
+}
+
+type (
+	// PlatformUpsertOne is the builder for "upsert"-ing
+	//  one Platform node.
+	PlatformUpsertOne struct {
+		create *PlatformCreate
+	}
+
+	// PlatformUpsert is the "OnConflict" setter.
+	PlatformUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *PlatformUpsert) SetName(v string) *PlatformUpsert {
+	u.Set(platform.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PlatformUpsert) UpdateName() *PlatformUpsert {
+	u.SetExcluded(platform.FieldName)
+	return u
+}
+
+// SetIcon sets the "icon" field.
+func (u *PlatformUpsert) SetIcon(v string) *PlatformUpsert {
+	u.Set(platform.FieldIcon, v)
+	return u
+}
+
+// UpdateIcon sets the "icon" field to the value that was provided on create.
+func (u *PlatformUpsert) UpdateIcon() *PlatformUpsert {
+	u.SetExcluded(platform.FieldIcon)
+	return u
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (u *PlatformUpsert) ClearIcon() *PlatformUpsert {
+	u.SetNull(platform.FieldIcon)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Platform.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *PlatformUpsertOne) UpdateNewValues() *PlatformUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.Platform.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *PlatformUpsertOne) Ignore() *PlatformUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PlatformUpsertOne) DoNothing() *PlatformUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PlatformCreate.OnConflict
+// documentation for more info.
+func (u *PlatformUpsertOne) Update(set func(*PlatformUpsert)) *PlatformUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PlatformUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *PlatformUpsertOne) SetName(v string) *PlatformUpsertOne {
+	return u.Update(func(s *PlatformUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PlatformUpsertOne) UpdateName() *PlatformUpsertOne {
+	return u.Update(func(s *PlatformUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetIcon sets the "icon" field.
+func (u *PlatformUpsertOne) SetIcon(v string) *PlatformUpsertOne {
+	return u.Update(func(s *PlatformUpsert) {
+		s.SetIcon(v)
+	})
+}
+
+// UpdateIcon sets the "icon" field to the value that was provided on create.
+func (u *PlatformUpsertOne) UpdateIcon() *PlatformUpsertOne {
+	return u.Update(func(s *PlatformUpsert) {
+		s.UpdateIcon()
+	})
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (u *PlatformUpsertOne) ClearIcon() *PlatformUpsertOne {
+	return u.Update(func(s *PlatformUpsert) {
+		s.ClearIcon()
+	})
+}
+
+// Exec executes the query.
+func (u *PlatformUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PlatformCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PlatformUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *PlatformUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *PlatformUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // PlatformCreateBulk is the builder for creating many Platform entities in bulk.
 type PlatformCreateBulk struct {
 	config
 	builders []*PlatformCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Platform entities in the database.
@@ -222,6 +417,7 @@ func (pcb *PlatformCreateBulk) Save(ctx context.Context) ([]*Platform, error) {
 					_, err = mutators[i+1].Mutate(root, pcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = pcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, pcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -272,6 +468,146 @@ func (pcb *PlatformCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (pcb *PlatformCreateBulk) ExecX(ctx context.Context) {
 	if err := pcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Platform.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.PlatformUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (pcb *PlatformCreateBulk) OnConflict(opts ...sql.ConflictOption) *PlatformUpsertBulk {
+	pcb.conflict = opts
+	return &PlatformUpsertBulk{
+		create: pcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Platform.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (pcb *PlatformCreateBulk) OnConflictColumns(columns ...string) *PlatformUpsertBulk {
+	pcb.conflict = append(pcb.conflict, sql.ConflictColumns(columns...))
+	return &PlatformUpsertBulk{
+		create: pcb,
+	}
+}
+
+// PlatformUpsertBulk is the builder for "upsert"-ing
+// a bulk of Platform nodes.
+type PlatformUpsertBulk struct {
+	create *PlatformCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Platform.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *PlatformUpsertBulk) UpdateNewValues() *PlatformUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Platform.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *PlatformUpsertBulk) Ignore() *PlatformUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *PlatformUpsertBulk) DoNothing() *PlatformUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the PlatformCreateBulk.OnConflict
+// documentation for more info.
+func (u *PlatformUpsertBulk) Update(set func(*PlatformUpsert)) *PlatformUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&PlatformUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *PlatformUpsertBulk) SetName(v string) *PlatformUpsertBulk {
+	return u.Update(func(s *PlatformUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *PlatformUpsertBulk) UpdateName() *PlatformUpsertBulk {
+	return u.Update(func(s *PlatformUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetIcon sets the "icon" field.
+func (u *PlatformUpsertBulk) SetIcon(v string) *PlatformUpsertBulk {
+	return u.Update(func(s *PlatformUpsert) {
+		s.SetIcon(v)
+	})
+}
+
+// UpdateIcon sets the "icon" field to the value that was provided on create.
+func (u *PlatformUpsertBulk) UpdateIcon() *PlatformUpsertBulk {
+	return u.Update(func(s *PlatformUpsert) {
+		s.UpdateIcon()
+	})
+}
+
+// ClearIcon clears the value of the "icon" field.
+func (u *PlatformUpsertBulk) ClearIcon() *PlatformUpsertBulk {
+	return u.Update(func(s *PlatformUpsert) {
+		s.ClearIcon()
+	})
+}
+
+// Exec executes the query.
+func (u *PlatformUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the PlatformCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for PlatformCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *PlatformUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

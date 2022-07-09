@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/long2ice/awesome/ent/platform"
@@ -19,6 +20,7 @@ type TopicCreate struct {
 	config
 	mutation *TopicMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -195,6 +197,7 @@ func (tc *TopicCreate) createSpec() (*Topic, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	_spec.OnConflict = tc.conflict
 	if value, ok := tc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -277,10 +280,293 @@ func (tc *TopicCreate) createSpec() (*Topic, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Topic.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TopicUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (tc *TopicCreate) OnConflict(opts ...sql.ConflictOption) *TopicUpsertOne {
+	tc.conflict = opts
+	return &TopicUpsertOne{
+		create: tc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Topic.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (tc *TopicCreate) OnConflictColumns(columns ...string) *TopicUpsertOne {
+	tc.conflict = append(tc.conflict, sql.ConflictColumns(columns...))
+	return &TopicUpsertOne{
+		create: tc,
+	}
+}
+
+type (
+	// TopicUpsertOne is the builder for "upsert"-ing
+	//  one Topic node.
+	TopicUpsertOne struct {
+		create *TopicCreate
+	}
+
+	// TopicUpsert is the "OnConflict" setter.
+	TopicUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *TopicUpsert) SetName(v string) *TopicUpsert {
+	u.Set(topic.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TopicUpsert) UpdateName() *TopicUpsert {
+	u.SetExcluded(topic.FieldName)
+	return u
+}
+
+// SetSubName sets the "sub_name" field.
+func (u *TopicUpsert) SetSubName(v string) *TopicUpsert {
+	u.Set(topic.FieldSubName, v)
+	return u
+}
+
+// UpdateSubName sets the "sub_name" field to the value that was provided on create.
+func (u *TopicUpsert) UpdateSubName() *TopicUpsert {
+	u.SetExcluded(topic.FieldSubName)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *TopicUpsert) SetDescription(v string) *TopicUpsert {
+	u.Set(topic.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *TopicUpsert) UpdateDescription() *TopicUpsert {
+	u.SetExcluded(topic.FieldDescription)
+	return u
+}
+
+// SetURL sets the "url" field.
+func (u *TopicUpsert) SetURL(v string) *TopicUpsert {
+	u.Set(topic.FieldURL, v)
+	return u
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *TopicUpsert) UpdateURL() *TopicUpsert {
+	u.SetExcluded(topic.FieldURL)
+	return u
+}
+
+// SetGithubURL sets the "github_url" field.
+func (u *TopicUpsert) SetGithubURL(v string) *TopicUpsert {
+	u.Set(topic.FieldGithubURL, v)
+	return u
+}
+
+// UpdateGithubURL sets the "github_url" field to the value that was provided on create.
+func (u *TopicUpsert) UpdateGithubURL() *TopicUpsert {
+	u.SetExcluded(topic.FieldGithubURL)
+	return u
+}
+
+// SetPlatformID sets the "platform_id" field.
+func (u *TopicUpsert) SetPlatformID(v int) *TopicUpsert {
+	u.Set(topic.FieldPlatformID, v)
+	return u
+}
+
+// UpdatePlatformID sets the "platform_id" field to the value that was provided on create.
+func (u *TopicUpsert) UpdatePlatformID() *TopicUpsert {
+	u.SetExcluded(topic.FieldPlatformID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Topic.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *TopicUpsertOne) UpdateNewValues() *TopicUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//  client.Topic.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
+func (u *TopicUpsertOne) Ignore() *TopicUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TopicUpsertOne) DoNothing() *TopicUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TopicCreate.OnConflict
+// documentation for more info.
+func (u *TopicUpsertOne) Update(set func(*TopicUpsert)) *TopicUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TopicUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *TopicUpsertOne) SetName(v string) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdateName() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetSubName sets the "sub_name" field.
+func (u *TopicUpsertOne) SetSubName(v string) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetSubName(v)
+	})
+}
+
+// UpdateSubName sets the "sub_name" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdateSubName() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateSubName()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *TopicUpsertOne) SetDescription(v string) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdateDescription() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *TopicUpsertOne) SetURL(v string) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdateURL() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetGithubURL sets the "github_url" field.
+func (u *TopicUpsertOne) SetGithubURL(v string) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetGithubURL(v)
+	})
+}
+
+// UpdateGithubURL sets the "github_url" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdateGithubURL() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateGithubURL()
+	})
+}
+
+// SetPlatformID sets the "platform_id" field.
+func (u *TopicUpsertOne) SetPlatformID(v int) *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetPlatformID(v)
+	})
+}
+
+// UpdatePlatformID sets the "platform_id" field to the value that was provided on create.
+func (u *TopicUpsertOne) UpdatePlatformID() *TopicUpsertOne {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdatePlatformID()
+	})
+}
+
+// Exec executes the query.
+func (u *TopicUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TopicCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TopicUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *TopicUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *TopicUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // TopicCreateBulk is the builder for creating many Topic entities in bulk.
 type TopicCreateBulk struct {
 	config
 	builders []*TopicCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Topic entities in the database.
@@ -306,6 +592,7 @@ func (tcb *TopicCreateBulk) Save(ctx context.Context) ([]*Topic, error) {
 					_, err = mutators[i+1].Mutate(root, tcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = tcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, tcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -356,6 +643,195 @@ func (tcb *TopicCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (tcb *TopicCreateBulk) ExecX(ctx context.Context) {
 	if err := tcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Topic.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.TopicUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+//
+func (tcb *TopicCreateBulk) OnConflict(opts ...sql.ConflictOption) *TopicUpsertBulk {
+	tcb.conflict = opts
+	return &TopicUpsertBulk{
+		create: tcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Topic.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+//
+func (tcb *TopicCreateBulk) OnConflictColumns(columns ...string) *TopicUpsertBulk {
+	tcb.conflict = append(tcb.conflict, sql.ConflictColumns(columns...))
+	return &TopicUpsertBulk{
+		create: tcb,
+	}
+}
+
+// TopicUpsertBulk is the builder for "upsert"-ing
+// a bulk of Topic nodes.
+type TopicUpsertBulk struct {
+	create *TopicCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Topic.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+//
+func (u *TopicUpsertBulk) UpdateNewValues() *TopicUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Topic.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+//
+func (u *TopicUpsertBulk) Ignore() *TopicUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *TopicUpsertBulk) DoNothing() *TopicUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the TopicCreateBulk.OnConflict
+// documentation for more info.
+func (u *TopicUpsertBulk) Update(set func(*TopicUpsert)) *TopicUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&TopicUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *TopicUpsertBulk) SetName(v string) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdateName() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetSubName sets the "sub_name" field.
+func (u *TopicUpsertBulk) SetSubName(v string) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetSubName(v)
+	})
+}
+
+// UpdateSubName sets the "sub_name" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdateSubName() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateSubName()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *TopicUpsertBulk) SetDescription(v string) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdateDescription() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *TopicUpsertBulk) SetURL(v string) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdateURL() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetGithubURL sets the "github_url" field.
+func (u *TopicUpsertBulk) SetGithubURL(v string) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetGithubURL(v)
+	})
+}
+
+// UpdateGithubURL sets the "github_url" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdateGithubURL() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdateGithubURL()
+	})
+}
+
+// SetPlatformID sets the "platform_id" field.
+func (u *TopicUpsertBulk) SetPlatformID(v int) *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.SetPlatformID(v)
+	})
+}
+
+// UpdatePlatformID sets the "platform_id" field to the value that was provided on create.
+func (u *TopicUpsertBulk) UpdatePlatformID() *TopicUpsertBulk {
+	return u.Update(func(s *TopicUpsert) {
+		s.UpdatePlatformID()
+	})
+}
+
+// Exec executes the query.
+func (u *TopicUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the TopicCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for TopicCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *TopicUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
