@@ -46,9 +46,17 @@ type Repo struct {
 	ResourceDescription string `json:"resource_description"`
 }
 
+func (r Repo) GetRepoURL() string {
+	if r.Type == "resource" {
+		u := strings.TrimRight(r.RepoURL, ".")
+		u = strings.TrimRight(u, ",")
+		return u
+	}
+	return r.RepoURL
+}
 func (r Repo) GetTitle() string {
 	if r.Title == "FAILURE" {
-		return r.RepoURL
+		return r.GetRepoURL()
 	}
 	return r.Title
 }

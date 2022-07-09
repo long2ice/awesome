@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/long2ice/awesome/ent"
+
 	"github.com/hibiken/asynq"
 	"github.com/long2ice/awesome/db"
 	"github.com/long2ice/awesome/ent/repo"
@@ -47,6 +49,7 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return err
 	}
+	var builders []*ent.RepoCreate
 	for _, v := range repos {
 		for _, repoInfo := range v {
 			var desc string
@@ -64,15 +67,18 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 				SetStarCount(repoInfo.StarCount()).
 				SetWatchCount(repoInfo.WatchCount()).
 				SetSubTopic(repoInfo.Category).
-				SetURL(repoInfo.RepoURL).
+				SetURL(repoInfo.GetRepoURL()).
 				SetType(repo.Type(repoInfo.Type)).
 				SetDescription(desc).
-				SetTopicID(topic.ID).OnConflict().UpdateNewValues()
+				SetTopicID(topic.ID)
 			if repoInfo.UpdatedAt.Time != nil {
 				repoCreate.SetUpdatedAt(*repoInfo.UpdatedAt.Time)
 			}
-			repoCreate.ExecX(ctx)
+			builders = append(builders, repoCreate)
 		}
+	}
+	if len(builders) > 0 {
+		db.Client.Repo.CreateBulk(builders...).OnConflict().UpdateNewValues().ExecX(ctx)
 	}
 	return err
 }
