@@ -12,7 +12,7 @@ var (
 	// PlatformColumns holds the columns for the "platform" table.
 	PlatformColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString, Unique: true},
 		{Name: "icon", Type: field.TypeString, Nullable: true},
 	}
 	// PlatformTable holds the schema information for the "platform" table.
@@ -45,7 +45,7 @@ var (
 				Symbol:     "repo_topic_repos",
 				Columns:    []*schema.Column{RepoColumns[10]},
 				RefColumns: []*schema.Column{TopicColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -69,7 +69,7 @@ var (
 				Symbol:     "topic_platform_topics",
 				Columns:    []*schema.Column{TopicColumns[6]},
 				RefColumns: []*schema.Column{PlatformColumns[0]},
-				OnDelete:   schema.NoAction,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}

@@ -29,7 +29,7 @@ func (Topic) Fields() []ent.Field {
 func (Topic) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("platform", Platform.Type).Ref("topics").Required().Field("platform_id").Unique(),
-		edge.To("repos", Repo.Type),
+		edge.To("repos", Repo.Type).Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 	}
 }
 

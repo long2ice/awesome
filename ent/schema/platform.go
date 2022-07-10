@@ -24,7 +24,7 @@ func (Platform) Fields() []ent.Field {
 // Edges of the Platform.
 func (Platform) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("topics", Topic.Type),
+		edge.To("topics", Topic.Type).Annotations(entsql.Annotation{OnDelete: entsql.Cascade}),
 	}
 }
 
