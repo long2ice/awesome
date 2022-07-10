@@ -3,14 +3,11 @@ package api
 import (
 	"fmt"
 
-	"github.com/long2ice/awesome/ent/repo"
-
-	"github.com/long2ice/awesome/ent/predicate"
-
-	"github.com/long2ice/awesome/ent"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/long2ice/awesome/db"
+	"github.com/long2ice/awesome/ent"
+	"github.com/long2ice/awesome/ent/predicate"
+	"github.com/long2ice/awesome/ent/repo"
 	"github.com/long2ice/awesome/ent/topic"
 	"github.com/long2ice/awesome/meili"
 	"github.com/meilisearch/meilisearch-go"

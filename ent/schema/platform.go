@@ -16,7 +16,7 @@ type Platform struct {
 // Fields of the Platform.
 func (Platform) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name"),
+		field.String("name").Unique(),
 		field.String("icon").Optional(),
 	}
 }
