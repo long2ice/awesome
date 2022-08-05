@@ -12,11 +12,11 @@ ENV GOOS=linux
 ENV GOARCH=$GOARCH
 ENV CGO_ENABLED=0
 WORKDIR /build
-COPY --from=web-builder /src/awesome-web/build /build/static
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
 COPY . .
+COPY --from=web-builder /src/awesome-web/build /build/static
 RUN go build -o app ./
 RUN go build -o worker ./worker
 RUN go build -o scheduler ./scheduler

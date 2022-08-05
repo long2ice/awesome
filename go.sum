@@ -373,6 +373,10 @@ github.com/long2ice/fibers v0.0.0-20220703130906-7716133c940f h1:VjLh8eCadF/t4WH
 github.com/long2ice/fibers v0.0.0-20220703130906-7716133c940f/go.mod h1:jdb2uBjO9Vx24sWDp7V8NIuct7GQRI87RQU0gdbOBiw=
 github.com/long2ice/fibers v0.0.0-20220805030427-9b4cdf5b0295 h1:RFgJvvsc7M9IGJ/u7U0mgY+PxHYYrg7f5pHvFYZVaWc=
 github.com/long2ice/fibers v0.0.0-20220805030427-9b4cdf5b0295/go.mod h1:kq/N+RocvIoRaA/rq67dR3XUj9+oTRAkDQirbS0pXNQ=
+github.com/long2ice/fibers v0.0.0-20220805034646-1036888ea97b h1:0vKkBFOo3twjsfmtYG6C/6kmChyUBUIOxTwcjxY4Gk0=
+github.com/long2ice/fibers v0.0.0-20220805034646-1036888ea97b/go.mod h1:kq/N+RocvIoRaA/rq67dR3XUj9+oTRAkDQirbS0pXNQ=
+github.com/long2ice/fibers v0.0.0-20220805041323-322c85cbe3d5 h1:xRLMJuoiwOpSSyTKo4iLEQ7UACizbcdeMhnRD7JdePE=
+github.com/long2ice/fibers v0.0.0-20220805041323-322c85cbe3d5/go.mod h1:kq/N+RocvIoRaA/rq67dR3XUj9+oTRAkDQirbS0pXNQ=
 github.com/lyft/protoc-gen-star v0.5.3/go.mod h1:V0xaHgaf5oCCqmcxYcWiDfTiKsZsRc87/1qhoTACD8w=
 github.com/magiconair/properties v1.8.5/go.mod h1:y3VJvCyxH9uVvJTWEGAELF3aiYNyPKd5NZ3oSwXrF60=
 github.com/magiconair/properties v1.8.6 h1:5ibWZ6iY0NctNGWo87LalDlEZ6R41TqbbDamhfG/Qzo=

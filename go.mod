@@ -13,13 +13,12 @@ require (
 	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/hibiken/asynq v0.23.0
 	github.com/hibiken/asynqmon v0.7.1
-	github.com/long2ice/fibers v0.0.0-20220805030427-9b4cdf5b0295
+	github.com/long2ice/fibers v0.0.0-20220805041323-322c85cbe3d5
 	github.com/meilisearch/meilisearch-go v0.19.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.7.2
 )
-
 
 require (
 	ariga.io/atlas v0.4.2 // indirect
