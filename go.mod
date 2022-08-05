@@ -20,7 +20,6 @@ require (
 	github.com/stretchr/testify v1.7.2
 )
 
-replace github.com/long2ice/fibers => /Users/long2ice/GolandProjects/fibers
 
 require (
 	ariga.io/atlas v0.4.2 // indirect
