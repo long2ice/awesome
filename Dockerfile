@@ -1,3 +1,10 @@
+FROM node as web-builder
+ENV REACT_APP_API_URL=/
+RUN mkdir -p /src
+WORKDIR /src
+RUN git clone https://github.com/long2ice/awesome-web.git
+RUN cd awesome-web && npm i && npm run build
+
 FROM golang AS builder
 MAINTAINER long2ice "long2ice@gmail.com"
 ENV GO111MODULE=on
@@ -5,6 +12,7 @@ ENV GOOS=linux
 ENV GOARCH=$GOARCH
 ENV CGO_ENABLED=0
 WORKDIR /build
+COPY --from=web-builder /src/awesome-web/build /build/static
 COPY go.mod .
 COPY go.sum .
 RUN go mod download

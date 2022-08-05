@@ -5,10 +5,7 @@ import (
 	"github.com/long2ice/awesome/db"
 )
 
-type Platform struct {
-}
-
-func (p *Platform) Handler(c *fiber.Ctx) error {
+func Platform(c *fiber.Ctx, req interface{}) error {
 	result := db.Client.Platform.Query().AllX(c.Context())
 	return c.JSON(result)
 }

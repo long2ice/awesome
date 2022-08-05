@@ -11,7 +11,7 @@ import (
 	"github.com/meilisearch/meilisearch-go"
 )
 
-type Repo struct {
+type RepoReq struct {
 	Keyword  string `query:"keyword"  example:"mysql"`
 	Limit    int64  `query:"limit"    example:"20"    validate:"required"`
 	Offset   int64  `query:"offset"   example:"0"`
@@ -20,35 +20,35 @@ type Repo struct {
 	SubTopic string `query:"subtopic"`
 }
 
-func (p *Repo) Handler(c *fiber.Ctx) error {
+func Repo(c *fiber.Ctx, req RepoReq) error {
 	searchReq := &meilisearch.SearchRequest{
-		Offset:               p.Offset,
-		Limit:                p.Limit,
+		Offset:               req.Offset,
+		Limit:                req.Limit,
 		AttributesToRetrieve: []string{"id"},
 	}
 	var filters []string
 	var repoFilters []string
-	f := fmt.Sprintf("topic_id = %d", p.TopicID)
+	f := fmt.Sprintf("topic_id = %d", req.TopicID)
 	filters = append(filters, f)
 	repoFilters = append(repoFilters, f)
-	if p.Type != "" {
-		filters = append(filters, fmt.Sprintf("type = '%s'", p.Type))
+	if req.Type != "" {
+		filters = append(filters, fmt.Sprintf("type = '%s'", req.Type))
 	} else {
 		repoFilters = append(repoFilters, "type = 'repo'")
 	}
-	if p.SubTopic != "" {
-		f = fmt.Sprintf("sub_topic = '%s'", p.SubTopic)
+	if req.SubTopic != "" {
+		f = fmt.Sprintf("sub_topic = '%s'", req.SubTopic)
 		filters = append(filters, f)
 		repoFilters = append(repoFilters, f)
 	}
 	searchReq.Filter = strings.Join(filters, " AND ")
-	searchRes, err := meili.RepoIndex.Search(p.Keyword, searchReq)
+	searchRes, err := meili.RepoIndex.Search(req.Keyword, searchReq)
 	if err != nil {
 		return err
 	}
 	var repoSearchRes *meilisearch.SearchResponse
 	searchReq.Filter = strings.Join(repoFilters, " AND ")
-	repoSearchRes, err = meili.RepoIndex.Search(p.Keyword, searchReq)
+	repoSearchRes, err = meili.RepoIndex.Search(req.Keyword, searchReq)
 	if err != nil {
 		return err
 	}
@@ -70,11 +70,11 @@ func (p *Repo) Handler(c *fiber.Ctx) error {
 		AllX(c.Context())
 	var repoTotal, resourceTotal, total int64
 
-	if p.Type == "repo" {
+	if req.Type == "repo" {
 		total = repoSearchRes.NbHits
 		repoTotal = searchRes.NbHits
 		resourceTotal = total - repoTotal
-	} else if p.Type == "" {
+	} else if req.Type == "" {
 		total = searchRes.NbHits
 		repoTotal = repoSearchRes.NbHits
 		resourceTotal = total - repoTotal
