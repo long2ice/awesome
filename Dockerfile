@@ -1,5 +1,5 @@
 FROM node as web-builder
-ENV REACT_APP_API_URL=/
+ENV REACT_APP_API_URL=/api
 RUN mkdir -p /src
 WORKDIR /src
 RUN git clone https://github.com/long2ice/awesome-web.git

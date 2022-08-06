@@ -4,6 +4,8 @@ import (
 	"embed"
 	"net/http"
 
+	"github.com/long2ice/awesome/api"
+
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 
 	"github.com/gofiber/adaptor/v2"
@@ -12,7 +14,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/hibiken/asynqmon"
-	"github.com/long2ice/awesome/api"
 	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/error"
 	"github.com/long2ice/awesome/tasks"
@@ -21,6 +22,7 @@ import (
 )
 
 func initRouters(app *fibers.App) {
+	apiGroup := app.Group("/api")
 	var (
 		topicSearch = router.New(api.TopicSearch, router.Summary("Search topic"))
 		repoSearch  = router.New(api.Repo, router.Summary("Search repo"))
@@ -32,17 +34,17 @@ func initRouters(app *fibers.App) {
 			router.Tags("Platform"),
 		)
 	)
-	topic := app.Group("/topic", fibers.Tags("Topic"))
+	topic := apiGroup.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
 	topic.Get("/:topic_id/repo", repoSearch)
 	topic.Get("/:topic_id/subtopics", subtopics)
 
-	app.Get("/platform", platform)
+	apiGroup.Get("/platform", platform)
 	h := asynqmon.New(asynqmon.Options{
 		RootPath:     "/asynqmon",
 		RedisConnOpt: tasks.Option,
 	})
-	app.App.All("/asynqmon/*", adaptor.HTTPHandler(h))
+	app.All("/asynqmon/*", adaptor.HTTPHandler(h))
 }
 
 func initMiddlewares(app *fibers.App) {
@@ -71,6 +73,5 @@ func CreateApp() *fibers.App {
 	})
 	initMiddlewares(app)
 	initRouters(app)
-	app.Init()
 	return app
 }
