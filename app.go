@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/hibiken/asynqmon"
@@ -49,7 +48,6 @@ func initMiddlewares(app *fibers.App) {
 			TimeZone:   conf.ServerConfig.Timezone,
 		}),
 		recover.New(),
-		cors.New(),
 	)
 
 }
