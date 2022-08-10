@@ -71,16 +71,16 @@ func Repo(c *fiber.Ctx, req RepoReq) error {
 	var repoTotal, resourceTotal, total int64
 
 	if req.Type == "repo" {
-		total = repoSearchRes.NbHits
-		repoTotal = searchRes.NbHits
+		total = repoSearchRes.EstimatedTotalHits
+		repoTotal = searchRes.EstimatedTotalHits
 		resourceTotal = total - repoTotal
 	} else if req.Type == "" {
-		total = searchRes.NbHits
-		repoTotal = repoSearchRes.NbHits
+		total = searchRes.EstimatedTotalHits
+		repoTotal = repoSearchRes.EstimatedTotalHits
 		resourceTotal = total - repoTotal
 	} else {
-		total = repoSearchRes.NbHits
-		resourceTotal = searchRes.NbHits
+		total = repoSearchRes.EstimatedTotalHits
+		resourceTotal = searchRes.EstimatedTotalHits
 		repoTotal = total - resourceTotal
 	}
 	return c.JSON(fiber.Map{

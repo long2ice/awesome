@@ -42,7 +42,7 @@ func TopicSearch(c *fiber.Ctx, req TopicSearchReq) error {
 				topic.FieldGithubURL).
 			Where(topic.IDIn(ids...)).
 			AllX(c.Context())
-		total = searchRes.NbHits
+		total = searchRes.EstimatedTotalHits
 	} else {
 		var where []predicate.Topic
 		if req.PlatformID != 0 {

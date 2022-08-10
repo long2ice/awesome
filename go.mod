@@ -3,25 +3,25 @@ module github.com/long2ice/awesome
 go 1.18
 
 require (
-	entgo.io/ent v0.10.2-0.20220502113020-4ac82f5bb3f0
+	entgo.io/ent v0.11.2
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/getkin/kin-openapi v0.98.0
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/gofiber/adaptor/v2 v2.1.24
+	github.com/gofiber/adaptor/v2 v2.1.25
 	github.com/gofiber/fiber/v2 v2.36.0
 	github.com/hibiken/asynq v0.23.0
 	github.com/hibiken/asynqmon v0.7.1
 	github.com/long2ice/fibers v0.0.0-20220805041323-322c85cbe3d5
-	github.com/meilisearch/meilisearch-go v0.19.1
+	github.com/meilisearch/meilisearch-go v0.20.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.8.0
 )
 
 require (
-	ariga.io/atlas v0.4.2 // indirect
+	ariga.io/atlas v0.5.1-0.20220717122844-8593d7eb1a8e // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
@@ -33,7 +33,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
-	github.com/go-openapi/swag v0.21.1 // indirect
+	github.com/go-openapi/swag v0.22.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
@@ -61,7 +61,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
-	github.com/spf13/afero v1.8.2 // indirect
+	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
@@ -71,13 +71,13 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
-	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220630215102-69896b714898 // indirect
-	golang.org/x/sys v0.0.0-20220804214406-8e32c043e418 // indirect
+	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
+	golang.org/x/net v0.0.0-20220809184613-07c6da5e1ced // indirect
+	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
-	google.golang.org/protobuf v1.28.0 // indirect
-	gopkg.in/ini.v1 v1.66.6 // indirect
+	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
+	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

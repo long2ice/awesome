@@ -106,12 +106,12 @@ func SyncTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
 		})
 	}
 	if len(documents) > 0 {
-		var t *meilisearch.Task
+		var t *meilisearch.TaskInfo
 		t, err := meili.TopicIndex.AddDocuments(documents)
 		if err != nil {
 			return err
 		}
-		log.Infof("success add %d topics to meilisearch, taskID: %d", len(documents), t.UID)
+		log.Infof("success add %d topics to meilisearch, taskID: %d", len(documents), t.TaskUID)
 	}
 	return nil
 }
@@ -138,12 +138,16 @@ func SyncRepoPeriodic(ctx context.Context, _ *asynq.Task) error {
 			})
 		}
 		if len(documents) > 0 {
-			var task *meilisearch.Task
+			var task *meilisearch.TaskInfo
 			task, err := meili.RepoIndex.AddDocuments(documents)
 			if err != nil {
 				return err
 			}
-			log.Infof("success add %d repos to meilisearch, taskID: %d", len(documents), task.UID)
+			log.Infof(
+				"success add %d repos to meilisearch, taskID: %d",
+				len(documents),
+				task.TaskUID,
+			)
 		}
 		offset += len(repos)
 	}
