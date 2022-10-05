@@ -1,4 +1,4 @@
-package conf
+package config
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -33,7 +33,7 @@ type Config struct {
 func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("config")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatalf("fatal error config file: %v \n", err)

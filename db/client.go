@@ -2,11 +2,11 @@ package db
 
 import (
 	"context"
+	"github.com/long2ice/awesome/config"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/ent"
 	"github.com/long2ice/awesome/ent/migrate"
 	log "github.com/sirupsen/logrus"
@@ -16,7 +16,7 @@ var Client *ent.Client
 
 func init() {
 	var err error
-	drv, err := sql.Open("mysql", conf.DatabaseConfig.Dsn)
+	drv, err := sql.Open("mysql", config.DatabaseConfig.Dsn)
 	if err != nil {
 		panic(err)
 	}

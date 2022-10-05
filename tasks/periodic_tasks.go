@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/long2ice/awesome/config"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hibiken/asynq"
-	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/db"
 	"github.com/long2ice/awesome/ent"
 	"github.com/long2ice/awesome/ent/repo"
@@ -119,7 +119,7 @@ func SyncRepoPeriodic(ctx context.Context, _ *asynq.Task) error {
 	offset := 0
 	for {
 		repos := db.Client.Repo.Query().
-			Limit(conf.MeiliSearchConfig.BatchSize).
+			Limit(config.MeiliSearchConfig.BatchSize).
 			Offset(offset).
 			Order(ent.Asc(repo.FieldID)).
 			AllX(ctx)

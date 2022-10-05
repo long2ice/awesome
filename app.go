@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"github.com/long2ice/awesome/config"
 	"net/http"
 
 	"github.com/long2ice/awesome/api"
@@ -13,7 +14,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/hibiken/asynqmon"
-	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/error"
 	"github.com/long2ice/awesome/tasks"
 	"github.com/long2ice/fibers"
@@ -48,8 +48,8 @@ func initRouters(app *fibers.App) {
 func initMiddlewares(app *fibers.App) {
 	app.Use(
 		logger.New(logger.Config{
-			TimeFormat: conf.ServerConfig.LogTimeFormat,
-			TimeZone:   conf.ServerConfig.Timezone,
+			TimeFormat: config.ServerConfig.LogTimeFormat,
+			TimeZone:   config.ServerConfig.Timezone,
 		}),
 		recover.New(),
 	)

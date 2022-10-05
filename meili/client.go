@@ -1,7 +1,7 @@
 package meili
 
 import (
-	"github.com/long2ice/awesome/conf"
+	"github.com/long2ice/awesome/config"
 	"github.com/meilisearch/meilisearch-go"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,8 +14,8 @@ var (
 
 func init() {
 	Client = meilisearch.NewClient(meilisearch.ClientConfig{
-		Host:   conf.MeiliSearchConfig.Server,
-		APIKey: conf.MeiliSearchConfig.MasterKey,
+		Host:   config.MeiliSearchConfig.Server,
+		APIKey: config.MeiliSearchConfig.MasterKey,
 	})
 	TopicIndex = Client.Index("awesome-topic")
 	_, err := TopicIndex.UpdateFilterableAttributes(&[]string{"platform_id"})

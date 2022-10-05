@@ -10,7 +10,7 @@ func NewSwagger() *swagger.Swagger {
 		swagger.Contact(&openapi3.Contact{
 			Name:  "long2ice",
 			URL:   "https://github.com/long2ice/awesome",
-			Email: "jinlong.peng@merico.dev",
+			Email: "long2ice@gmail.com",
 		}),
 		swagger.TermsOfService("https://github.com/long2ice"),
 	)

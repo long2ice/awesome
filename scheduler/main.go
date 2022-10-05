@@ -4,13 +4,12 @@ import (
 	"time"
 
 	"github.com/hibiken/asynq"
-	"github.com/long2ice/awesome/conf"
 	"github.com/long2ice/awesome/tasks"
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	loc, err := time.LoadLocation(conf.ServerConfig.Timezone)
+	loc, err := time.LoadLocation(config.ServerConfig.Timezone)
 	if err != nil {
 		log.Fatal(err)
 	}
