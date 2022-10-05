@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/long2ice/awesome/config"
 	"time"
 
 	"github.com/hibiken/asynq"
