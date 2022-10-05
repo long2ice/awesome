@@ -1,7 +1,12 @@
 package main
 
 import (
+	"embed"
+	"net/http"
+
 	"github.com/long2ice/awesome/api"
+
+	"github.com/gofiber/fiber/v2/middleware/filesystem"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
@@ -51,8 +56,18 @@ func initMiddlewares(app *fibers.App) {
 
 }
 
+//go:embed static/*
+var static embed.FS
+
 func CreateApp() *fibers.App {
 	app := fibers.New(NewSwagger(), fiber.Config{ErrorHandler: error.Handler})
+	app.AfterInit(func() {
+		app.Use("/", filesystem.New(filesystem.Config{
+			Root:       http.FS(static),
+			PathPrefix: "static",
+			Browse:     true,
+		}))
+	})
 	initMiddlewares(app)
 	initRouters(app)
 	return app
