@@ -1,13 +1,8 @@
 package main
 
 import (
-	"embed"
-	"github.com/long2ice/awesome/config"
-	"net/http"
-
 	"github.com/long2ice/awesome/api"
-
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/long2ice/awesome/config"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +16,6 @@ import (
 )
 
 func initRouters(app *fibers.App) {
-	apiGroup := app.Group("/api")
 
 	var (
 		topicSearch = router.New(api.TopicSearch, router.Summary("Search topic"))
@@ -34,11 +28,11 @@ func initRouters(app *fibers.App) {
 			router.Tags("Platform"),
 		)
 	)
-	topic := apiGroup.Group("/topic", fibers.Tags("Topic"))
+	topic := app.Group("/topic", fibers.Tags("Topic"))
 	topic.Get("", topicSearch)
 	topic.Get("/:topic_id/repo", repoSearch)
 	topic.Get("/:topic_id/subtopics", subtopics)
-	apiGroup.Get("/platform", platform)
+	app.Get("/platform", platform)
 
 	h := asynqmon.New(asynqmon.Options{
 		RootPath:     "/asynqmon",
@@ -58,18 +52,8 @@ func initMiddlewares(app *fibers.App) {
 
 }
 
-//go:embed static/*
-var static embed.FS
-
 func CreateApp() *fibers.App {
 	app := fibers.New(NewSwagger(), fiber.Config{ErrorHandler: error.Handler})
-	app.AfterInit(func() {
-		app.Use("/", filesystem.New(filesystem.Config{
-			Root:       http.FS(static),
-			PathPrefix: "static",
-			Browse:     true,
-		}))
-	})
 	initMiddlewares(app)
 	initRouters(app)
 	return app
