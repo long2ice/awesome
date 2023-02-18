@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/long2ice/awesome/api"
 	"github.com/long2ice/awesome/config"
 
@@ -48,8 +49,8 @@ func initMiddlewares(app *fibers.App) {
 			TimeZone:   config.ServerConfig.Timezone,
 		}),
 		recover.New(),
+		cors.New(),
 	)
-
 }
 
 func CreateApp() *fibers.App {
