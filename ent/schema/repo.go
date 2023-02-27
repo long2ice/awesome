@@ -16,10 +16,10 @@ type Repo struct {
 // Fields of the Repo.
 func (Repo) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name"),
+		field.String("name").MaxLen(500),
 		field.Text("description"),
-		field.String("url").Unique(),
-		field.String("sub_topic"),
+		field.String("url").Unique().MaxLen(500),
+		field.String("sub_topic").MaxLen(500),
 		field.Enum("type").Values("repo", "resource"),
 		field.Int("star_count").Optional(),
 		field.Int("fork_count").Optional(),
