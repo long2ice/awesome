@@ -163,29 +163,14 @@ func (rc *RepoCreate) check() error {
 	if _, ok := rc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Repo.name"`)}
 	}
-	if v, ok := rc.mutation.Name(); ok {
-		if err := repo.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Repo.name": %w`, err)}
-		}
-	}
 	if _, ok := rc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Repo.description"`)}
 	}
 	if _, ok := rc.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Repo.url"`)}
 	}
-	if v, ok := rc.mutation.URL(); ok {
-		if err := repo.URLValidator(v); err != nil {
-			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Repo.url": %w`, err)}
-		}
-	}
 	if _, ok := rc.mutation.SubTopic(); !ok {
 		return &ValidationError{Name: "sub_topic", err: errors.New(`ent: missing required field "Repo.sub_topic"`)}
-	}
-	if v, ok := rc.mutation.SubTopic(); ok {
-		if err := repo.SubTopicValidator(v); err != nil {
-			return &ValidationError{Name: "sub_topic", err: fmt.Errorf(`ent: validator failed for field "Repo.sub_topic": %w`, err)}
-		}
 	}
 	if _, ok := rc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Repo.type"`)}

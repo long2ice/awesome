@@ -69,15 +69,6 @@ func ValidColumn(column string) bool {
 	return false
 }
 
-var (
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
-	// URLValidator is a validator for the "url" field. It is called by the builders before save.
-	URLValidator func(string) error
-	// SubTopicValidator is a validator for the "sub_topic" field. It is called by the builders before save.
-	SubTopicValidator func(string) error
-)
-
 // Type defines the type for the "type" enum field.
 type Type string
 

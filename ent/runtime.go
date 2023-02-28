@@ -2,27 +2,8 @@
 
 package ent
 
-import (
-	"github.com/long2ice/awesome/ent/repo"
-	"github.com/long2ice/awesome/ent/schema"
-)
-
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	repoFields := schema.Repo{}.Fields()
-	_ = repoFields
-	// repoDescName is the schema descriptor for name field.
-	repoDescName := repoFields[0].Descriptor()
-	// repo.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	repo.NameValidator = repoDescName.Validators[0].(func(string) error)
-	// repoDescURL is the schema descriptor for url field.
-	repoDescURL := repoFields[2].Descriptor()
-	// repo.URLValidator is a validator for the "url" field. It is called by the builders before save.
-	repo.URLValidator = repoDescURL.Validators[0].(func(string) error)
-	// repoDescSubTopic is the schema descriptor for sub_topic field.
-	repoDescSubTopic := repoFields[3].Descriptor()
-	// repo.SubTopicValidator is a validator for the "sub_topic" field. It is called by the builders before save.
-	repo.SubTopicValidator = repoDescSubTopic.Validators[0].(func(string) error)
 }

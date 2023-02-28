@@ -218,21 +218,6 @@ func (ru *RepoUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ru *RepoUpdate) check() error {
-	if v, ok := ru.mutation.Name(); ok {
-		if err := repo.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Repo.name": %w`, err)}
-		}
-	}
-	if v, ok := ru.mutation.URL(); ok {
-		if err := repo.URLValidator(v); err != nil {
-			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Repo.url": %w`, err)}
-		}
-	}
-	if v, ok := ru.mutation.SubTopic(); ok {
-		if err := repo.SubTopicValidator(v); err != nil {
-			return &ValidationError{Name: "sub_topic", err: fmt.Errorf(`ent: validator failed for field "Repo.sub_topic": %w`, err)}
-		}
-	}
 	if v, ok := ru.mutation.GetType(); ok {
 		if err := repo.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Repo.type": %w`, err)}
@@ -568,21 +553,6 @@ func (ruo *RepoUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ruo *RepoUpdateOne) check() error {
-	if v, ok := ruo.mutation.Name(); ok {
-		if err := repo.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Repo.name": %w`, err)}
-		}
-	}
-	if v, ok := ruo.mutation.URL(); ok {
-		if err := repo.URLValidator(v); err != nil {
-			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Repo.url": %w`, err)}
-		}
-	}
-	if v, ok := ruo.mutation.SubTopic(); ok {
-		if err := repo.SubTopicValidator(v); err != nil {
-			return &ValidationError{Name: "sub_topic", err: fmt.Errorf(`ent: validator failed for field "Repo.sub_topic": %w`, err)}
-		}
-	}
 	if v, ok := ruo.mutation.GetType(); ok {
 		if err := repo.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Repo.type": %w`, err)}
