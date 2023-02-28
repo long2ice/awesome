@@ -49,36 +49,42 @@ func GetRepos(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return err
 	}
-	var builders []*ent.RepoCreate
-	for _, v := range repos {
-		for _, repoInfo := range v {
-			var desc string
-			var name string
-			if repoInfo.Type == "resource" {
-				desc = repoInfo.ResourceDescription
-				name = repoInfo.GetTitle()
-			} else {
-				desc = repoInfo.Description
-				name = repoInfo.FullName
-			}
-			repoCreate := db.Client.Repo.Create().
-				SetName(name).
-				SetForkCount(repoInfo.ForkCount()).
-				SetStarCount(repoInfo.StarCount()).
-				SetWatchCount(repoInfo.WatchCount()).
-				SetSubTopic(repoInfo.Category).
-				SetURL(repoInfo.GetRepoURL()).
-				SetType(repo.Type(repoInfo.Type)).
-				SetDescription(desc).
-				SetTopicID(topic.ID)
-			if repoInfo.UpdatedAt.Time != nil {
-				repoCreate.SetUpdatedAt(*repoInfo.UpdatedAt.Time)
-			}
-			builders = append(builders, repoCreate)
+	return db.WithTx(ctx, db.Client, func(tx *ent.Tx) error {
+		_, err = tx.Repo.Delete().Where(repo.TopicID(topicID)).Exec(ctx)
+		if err != nil {
+			return err
 		}
-	}
-	if len(builders) > 0 {
-		db.Client.Repo.CreateBulk(builders...).OnConflict().UpdateNewValues().ExecX(ctx)
-	}
-	return err
+		var builders []*ent.RepoCreate
+		for _, v := range repos {
+			for _, repoInfo := range v {
+				var desc string
+				var name string
+				if repoInfo.Type == "resource" {
+					desc = repoInfo.ResourceDescription
+					name = repoInfo.GetTitle()
+				} else {
+					desc = repoInfo.Description
+					name = repoInfo.FullName
+				}
+				repoCreate := tx.Repo.Create().
+					SetName(name).
+					SetForkCount(repoInfo.ForkCount()).
+					SetStarCount(repoInfo.StarCount()).
+					SetWatchCount(repoInfo.WatchCount()).
+					SetSubTopic(repoInfo.Category).
+					SetURL(repoInfo.GetRepoURL()).
+					SetType(repo.Type(repoInfo.Type)).
+					SetDescription(desc).
+					SetTopicID(topic.ID)
+				if repoInfo.UpdatedAt.Time != nil {
+					repoCreate.SetUpdatedAt(*repoInfo.UpdatedAt.Time)
+				}
+				builders = append(builders, repoCreate)
+			}
+		}
+		if len(builders) > 0 {
+			return tx.Repo.CreateBulk(builders...).Exec(ctx)
+		}
+		return nil
+	})
 }
