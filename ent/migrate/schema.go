@@ -26,7 +26,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 1000},
 		{Name: "description", Type: field.TypeString, Size: 2147483647},
-		{Name: "url", Type: field.TypeString, Unique: true, Size: 1000},
+		{Name: "url", Type: field.TypeString, Unique: true, Size: 500},
 		{Name: "sub_topic", Type: field.TypeString, Size: 1000},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"repo", "resource"}},
 		{Name: "star_count", Type: field.TypeInt, Nullable: true},
