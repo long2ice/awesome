@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/getsentry/sentry-go"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -28,6 +29,11 @@ type Config struct {
 	Database    *Database    `yaml:"database"`
 	MeiliSearch *MeiliSearch `yaml:"meilisearch"`
 	Redis       *Redis       `yaml:"redis"`
+	Sentry      *Sentry      `yaml:"sentry"`
+}
+type Sentry struct {
+	Dsn         string `yaml:"dsn"`
+	Environment string `yaml:"environment"`
 }
 
 func init() {
@@ -47,6 +53,15 @@ func init() {
 	DatabaseConfig = c.Database
 	MeiliSearchConfig = c.MeiliSearch
 	RedisConfig = c.Redis
+	SentryConfig = c.Sentry
+	err = sentry.Init(sentry.ClientOptions{
+		Dsn:              SentryConfig.Dsn,
+		Environment:      SentryConfig.Environment,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
 }
 
 var (
@@ -54,4 +69,5 @@ var (
 	DatabaseConfig    *Database
 	MeiliSearchConfig *MeiliSearch
 	RedisConfig       *Redis
+	SentryConfig      *Sentry
 )

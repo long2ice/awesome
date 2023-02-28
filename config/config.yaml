@@ -15,3 +15,7 @@ redis:
   addr: 127.0.0.1:6379
   password:
   db: 3
+
+sentry:
+  dsn: https://7a0a0a10b58c4de3b5567eb329b850c0@sentry.long2ice.io/5
+  environment: development
