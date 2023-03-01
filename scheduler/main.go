@@ -25,16 +25,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeGetTopicPeriodic)
-	entryID, err = scheduler.Register("0 2 * * *", asynq.NewTask(tasks.TypeSyncTopicPeriodic, nil))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeSyncTopicPeriodic)
-	entryID, err = scheduler.Register("0 3 * * *", asynq.NewTask(tasks.TypeSyncRepoPeriodic, nil))
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("registered an entry: %q type: %s \n", entryID, tasks.TypeSyncRepoPeriodic)
 	if err = scheduler.Run(); err != nil {
 		log.Fatal(err)
 	}

@@ -4,24 +4,17 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/long2ice/awesome/config"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hibiken/asynq"
 	"github.com/long2ice/awesome/db"
-	"github.com/long2ice/awesome/ent"
-	"github.com/long2ice/awesome/ent/repo"
-	"github.com/long2ice/awesome/meili"
 	"github.com/long2ice/awesome/schema"
-	"github.com/meilisearch/meilisearch-go"
 	log "github.com/sirupsen/logrus"
 )
 
 const (
-	TypeGetTopicPeriodic  = "GetTopicPeriodic"
-	TypeSyncTopicPeriodic = "SyncTopicPeriodic"
-	TypeSyncRepoPeriodic  = "SyncRepoPeriodic"
+	TypeGetTopicPeriodic = "GetTopicPeriodic"
 )
 
 func GetTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
@@ -92,65 +85,4 @@ func GetTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
 	}
 
 	return err
-}
-func SyncTopicPeriodic(ctx context.Context, _ *asynq.Task) error {
-	topics := db.Client.Topic.Query().AllX(ctx)
-	var documents []map[string]interface{}
-	for _, tp := range topics {
-		documents = append(documents, map[string]interface{}{
-			"id":          tp.ID,
-			"name":        tp.Name,
-			"sub_name":    tp.SubName,
-			"description": tp.Description,
-			"platform_id": tp.PlatformID,
-		})
-	}
-	if len(documents) > 0 {
-		var t *meilisearch.TaskInfo
-		t, err := meili.TopicIndex.AddDocuments(documents)
-		if err != nil {
-			return err
-		}
-		log.Infof("success add %d topics to meilisearch, taskID: %d", len(documents), t.TaskUID)
-	}
-	return nil
-}
-func SyncRepoPeriodic(ctx context.Context, _ *asynq.Task) error {
-	offset := 0
-	for {
-		repos := db.Client.Repo.Query().
-			Limit(config.MeiliSearchConfig.BatchSize).
-			Offset(offset).
-			Order(ent.Asc(repo.FieldID)).
-			AllX(ctx)
-		if len(repos) == 0 {
-			break
-		}
-		var documents []map[string]interface{}
-		for _, r := range repos {
-			documents = append(documents, map[string]interface{}{
-				"id":          r.ID,
-				"name":        r.Name,
-				"description": r.Description,
-				"sub_topic":   r.SubTopic,
-				"topic_id":    r.TopicID,
-				"type":        r.Type,
-			})
-		}
-		if len(documents) > 0 {
-			var task *meilisearch.TaskInfo
-			task, err := meili.RepoIndex.AddDocuments(documents)
-			if err != nil {
-				return err
-			}
-			log.Infof(
-				"success add %d repos to meilisearch, taskID: %d",
-				len(documents),
-				task.TaskUID,
-			)
-		}
-		offset += len(repos)
-	}
-
-	return nil
 }

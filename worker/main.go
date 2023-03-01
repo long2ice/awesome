@@ -13,8 +13,6 @@ func main() {
 	)
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(tasks.TypeGetTopicPeriodic, tasks.GetTopicPeriodic)
-	mux.HandleFunc(tasks.TypeSyncTopicPeriodic, tasks.SyncTopicPeriodic)
-	mux.HandleFunc(tasks.TypeSyncRepoPeriodic, tasks.SyncRepoPeriodic)
 	mux.HandleFunc(tasks.TypeGetRepos, tasks.GetRepos)
 
 	if err := srv.Run(mux); err != nil {
